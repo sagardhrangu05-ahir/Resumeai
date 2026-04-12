@@ -1,0 +1,57 @@
+version: '3.8'
+
+services:
+  # ── Next.js App ──────────────────────────
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: resumeai-app
+    restart: always
+    environment:
+      - NODE_ENV=production
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - RAZORPAY_KEY_ID=${RAZORPAY_KEY_ID}
+      - RAZORPAY_KEY_SECRET=${RAZORPAY_KEY_SECRET}
+      - NEXT_PUBLIC_RAZORPAY_KEY_ID=${NEXT_PUBLIC_RAZORPAY_KEY_ID}
+      - NEXT_PUBLIC_SITE_URL=${NEXT_PUBLIC_SITE_URL}
+      - PRICE_AMOUNT=${PRICE_AMOUNT}
+      - PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
+      - PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
+    expose:
+      - "3000"
+    networks:
+      - resumeai-network
+
+  # ── Nginx Reverse Proxy ───────────────────
+  nginx:
+    image: nginx:alpine
+    container_name: resumeai-nginx
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./docker/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./docker/ssl:/etc/nginx/ssl:ro          # SSL certificates
+      - certbot-www:/var/www/certbot:ro          # For Let's Encrypt
+    depends_on:
+      - app
+    networks:
+      - resumeai-network
+
+  # ── Certbot (SSL Auto-Renew) ──────────────
+  certbot:
+    image: certbot/certbot
+    container_name: resumeai-certbot
+    volumes:
+      - ./docker/ssl:/etc/letsencrypt
+      - certbot-www:/var/www/certbot
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
+
+networks:
+  resumeai-network:
+    driver: bridge
+
+volumes:
+  certbot-www:
