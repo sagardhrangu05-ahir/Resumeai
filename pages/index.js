@@ -212,6 +212,13 @@ export default function Home() {
       <footer className="footer">
         <p>© 2026 ResumeAI. All rights reserved.</p>
         <p style={{ marginTop: 8 }}>Made with ❤️ in India</p>
+        <div style={{ display: 'flex', gap: 20, justifyContent: 'center', flexWrap: 'wrap', marginTop: 16 }}>
+          <a href="/terms" style={{ color: '#B0B0D0', fontSize: 13, textDecoration: 'none' }}>Terms & Conditions</a>
+          <a href="/privacy" style={{ color: '#B0B0D0', fontSize: 13, textDecoration: 'none' }}>Privacy Policy</a>
+          <a href="/shipping" style={{ color: '#B0B0D0', fontSize: 13, textDecoration: 'none' }}>Shipping Policy</a>
+          <a href="/contact" style={{ color: '#B0B0D0', fontSize: 13, textDecoration: 'none' }}>Contact Us</a>
+          <a href="/cancellation" style={{ color: '#B0B0D0', fontSize: 13, textDecoration: 'none' }}>Cancellation & Refunds</a>
+        </div>
       </footer>
     </>
   );
