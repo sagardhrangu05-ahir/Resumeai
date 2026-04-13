@@ -1,8 +1,9 @@
 import { generateResume } from '../../lib/claude';
-const { v4: uuidv4 } = require('uuid');
-const fs = require('fs');
-const path = require('path');
-const os = require('os');
+import { v4 as uuidv4 } from 'uuid';
+import fs from 'fs';
+import path from 'path';
+import os from 'os';
+import pdfParse from 'pdf-parse';
 
 export const config = {
   api: { bodyParser: false }
@@ -72,7 +73,6 @@ export default async function handler(req, res) {
     // Extract text from PDF
     let pdfText = '';
     try {
-      const pdfParse = require('pdf-parse');
       const dataBuffer = fs.readFileSync(tmpPath);
       const pdfData = await pdfParse(dataBuffer);
       pdfText = pdfData.text;
