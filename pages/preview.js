@@ -143,6 +143,7 @@ export default function Preview() {
       <>
         <Head>
           <title>Payment Successful — ResumeAI</title>
+          <meta name="robots" content="noindex,nofollow" />
         </Head>
         <div className="success-page">
           <div>
@@ -179,6 +180,7 @@ export default function Preview() {
     <>
       <Head>
         <title>Resume Preview — ResumeAI</title>
+        <meta name="robots" content="noindex,nofollow" />
         <script src="https://checkout.razorpay.com/v1/checkout.js" async></script>
       </Head>
 

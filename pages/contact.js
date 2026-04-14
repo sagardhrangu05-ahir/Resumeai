@@ -1,14 +1,16 @@
-import Head from 'next/head';
 import { useRouter } from 'next/router';
+import Seo from '../lib/Seo';
 
 export default function Contact() {
   const router = useRouter();
 
   return (
     <>
-      <Head>
-        <title>Contact Us — ResumeAI</title>
-      </Head>
+      <Seo
+        title="Contact Us"
+        description="Get in touch with ResumeAI support. We're based in Surat, Gujarat, India and respond within 24 hours — Mon–Sat, 10am–7pm IST."
+        canonical="/contact"
+      />
 
       {/* NAVBAR */}
       <nav style={{

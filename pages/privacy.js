@@ -1,14 +1,16 @@
-import Head from 'next/head';
 import { useRouter } from 'next/router';
+import Seo from '../lib/Seo';
 
 export default function Privacy() {
   const router = useRouter();
 
   return (
     <>
-      <Head>
-        <title>Privacy Policy — ResumeAI</title>
-      </Head>
+      <Seo
+        title="Privacy Policy"
+        description="Read the ResumeAI Privacy Policy. We respect your data — resume data is deleted after generation and never shared with third parties."
+        canonical="/privacy"
+      />
 
       {/* NAVBAR */}
       <nav style={{

@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /preview
+Disallow: /api/
+
+Sitemap: https://resumejet.in/sitemap.xml

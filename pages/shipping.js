@@ -1,14 +1,16 @@
-import Head from 'next/head';
 import { useRouter } from 'next/router';
+import Seo from '../lib/Seo';
 
 export default function Shipping() {
   const router = useRouter();
 
   return (
     <>
-      <Head>
-        <title>Shipping Policy — ResumeAI</title>
-      </Head>
+      <Seo
+        title="Shipping Policy"
+        description="ResumeAI is a digital service — resumes are delivered instantly as PDF downloads. No physical shipping. Read our delivery policy."
+        canonical="/shipping"
+      />
 
       {/* NAVBAR */}
       <nav style={{

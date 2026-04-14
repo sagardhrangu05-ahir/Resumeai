@@ -1,14 +1,16 @@
-import Head from 'next/head';
 import { useRouter } from 'next/router';
+import Seo from '../lib/Seo';
 
 export default function Terms() {
   const router = useRouter();
 
   return (
     <>
-      <Head>
-        <title>Terms & Conditions — ResumeAI</title>
-      </Head>
+      <Seo
+        title="Terms & Conditions"
+        description="Terms and Conditions for using ResumeAI — India's AI resume builder. Read our service terms, payment policy, and usage guidelines."
+        canonical="/terms"
+      />
 
       {/* NAVBAR */}
       <nav style={{

@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react';
 import { useRouter } from 'next/router';
+import Seo from '../lib/Seo';
 
 const emptyExp = { title: '', company: '', duration: '', description: '' };
 const emptyEdu = { degree: '', institution: '', year: '', score: '' };
@@ -214,6 +215,11 @@ export default function Builder() {
 
   return (
     <div className="builder-page">
+      <Seo
+        title="Build Your Resume — AI Resume Builder"
+        description="Fill in your details or upload your existing resume. Our AI generates a professional, ATS-optimized resume in 2 minutes for just ₹49."
+        canonical="/builder"
+      />
       {/* Header */}
       <div className="builder-header">
         <div style={{ cursor: 'pointer', marginBottom: 16 }} onClick={() => router.push('/')}>

@@ -1,14 +1,16 @@
-import Head from 'next/head';
 import { useRouter } from 'next/router';
+import Seo from '../lib/Seo';
 
 export default function Cancellation() {
   const router = useRouter();
 
   return (
     <>
-      <Head>
-        <title>Cancellation & Refunds — ResumeAI</title>
-      </Head>
+      <Seo
+        title="Cancellation & Refunds"
+        description="ResumeAI cancellation and refund policy. Genuine refund requests are handled within 5–7 business days. Read the full policy here."
+        canonical="/cancellation"
+      />
 
       {/* NAVBAR */}
       <nav style={{
