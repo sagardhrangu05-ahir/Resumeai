@@ -21,7 +21,7 @@ export default function Privacy() {
           <span style={{ color: '#FFD700' }}>Resume</span>
           <span style={{ color: '#fff' }}>AI</span>
         </div>
-        <button className="btn-primary" onClick={() => router.push('/builder')}
+        <button className="btn-primary" onClick={() => router.push('/select-type')}
           style={{ padding: '10px 24px', fontSize: 13 }}>
           Build Resume →
         </button>
