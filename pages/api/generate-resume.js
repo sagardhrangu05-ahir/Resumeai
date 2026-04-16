@@ -7,17 +7,12 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { data } = req.body;
+    const { data, resumeType = 'fresher' } = req.body;
     const orderId = uuidv4();
 
-    // Call Claude AI to generate resume
-    const resume = await generateResume(data);
+    const resume = await generateResume(data, resumeType);
 
-    return res.status(200).json({
-      success: true,
-      resume,
-      orderId
-    });
+    return res.status(200).json({ success: true, resume, orderId });
   } catch (error) {
     console.error('Resume generation error:', error);
     return res.status(500).json({

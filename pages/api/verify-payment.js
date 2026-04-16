@@ -20,7 +20,8 @@ export default async function handler(req, res) {
       razorpay_order_id,
       razorpay_payment_id,
       razorpay_signature,
-      orderId
+      orderId,
+      plan = 'basic'
     } = req.body;
 
     const isValid = verifySignature(
@@ -40,7 +41,8 @@ export default async function handler(req, res) {
         message: 'Payment verified successfully',
         downloadToken,
         paymentId: razorpay_payment_id,
-        razorpayOrderId: razorpay_order_id
+        razorpayOrderId: razorpay_order_id,
+        plan
       });
     } else {
       console.log(`❌ Payment FAILED verification: ${razorpay_order_id}`);

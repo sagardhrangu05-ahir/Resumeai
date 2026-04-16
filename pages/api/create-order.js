@@ -1,4 +1,5 @@
 import { createOrder } from '../../lib/razorpay';
+import { PLANS } from '../../config/pricing';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -6,8 +7,10 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { orderId } = req.body;
-    const amount = parseInt(process.env.PRICE_AMOUNT || '4900'); // ₹49 in paise
+    const { orderId, plan: planId = 'basic' } = req.body;
+
+    const planConfig = PLANS.find(p => p.id === planId);
+    const amount     = planConfig ? planConfig.razorpayAmount : 4900;
 
     const order = await createOrder(amount, orderId || `resume_${Date.now()}`);
 
@@ -15,7 +18,8 @@ export default async function handler(req, res) {
       success: true,
       razorpayOrderId: order.id,
       amount: order.amount,
-      currency: order.currency
+      currency: order.currency,
+      plan: planId
     });
   } catch (error) {
     console.error('Order creation error:', error);

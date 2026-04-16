@@ -70,13 +70,14 @@ export default async function handler(req, res) {
     const parts = await parseMultipart(req);
     const file = parts.resume;
     const targetRole = parts.targetRole || '';
+    const resumeType = parts.resumeType || 'fresher';
 
     if (!file || !file.buffer) {
       return res.status(400).json({ success: false, error: 'No file uploaded' });
     }
 
     if (file.buffer.length > 10 * 1024 * 1024) {
-      return res.status(400).json({ success: false, error: 'File size 10MB થી ઓછી હોવી જોઈએ!' });
+      return res.status(400).json({ success: false, error: 'File size must be under 10 MB.' });
     }
 
     const fileType = getFileType(file.filename || '');
@@ -84,7 +85,7 @@ export default async function handler(req, res) {
     if (!fileType) {
       return res.status(400).json({
         success: false,
-        error: 'Unsupported file type. PDF, Word (.docx), JPG અથવા PNG upload કરો.'
+        error: 'Unsupported file type. Please upload PDF, Word (.docx), JPG or PNG.'
       });
     }
 
@@ -94,12 +95,12 @@ export default async function handler(req, res) {
     // ── IMAGE (JPG / PNG / WEBP) ──────────────────────────────────────────
     if (fileType.startsWith('image/')) {
       try {
-        resume = await generateResumeFromImage(file.buffer, fileType, targetRole);
+        resume = await generateResumeFromImage(file.buffer, fileType, targetRole, resumeType);
       } catch (imgErr) {
         console.error('Image parse error:', imgErr);
         return res.status(400).json({
           success: false,
-          error: 'Image read failed. Clear, good-quality resume image upload કરો.'
+          error: 'Image read failed. Please upload a clear, good-quality resume image.'
         });
       }
 
@@ -114,14 +115,14 @@ export default async function handler(req, res) {
         console.error('DOCX parse error:', docErr);
         return res.status(400).json({
           success: false,
-          error: 'Word file read failed. Valid .docx file upload કરો.'
+          error: 'Word file read failed. Please upload a valid .docx file.'
         });
       }
 
       if (!docText || docText.trim().length < 50) {
         return res.status(400).json({
           success: false,
-          error: 'Word file માંથી text extract ના થયો. Valid resume .docx upload કરો.'
+          error: 'Could not extract text from the Word file. Please upload a valid resume .docx.'
         });
       }
 
@@ -129,7 +130,7 @@ export default async function handler(req, res) {
         rawText: docText,
         targetRole,
         instruction: "This is extracted text from the user's Word (.docx) resume. Restructure and enhance it into a professional resume."
-      });
+      }, resumeType);
 
     // ── PDF ───────────────────────────────────────────────────────────────
     } else {
@@ -146,7 +147,7 @@ export default async function handler(req, res) {
         console.error('PDF parse error:', pdfErr);
         return res.status(400).json({
           success: false,
-          error: 'PDF read failed. Valid text-based PDF upload કરો.'
+          error: 'PDF read failed. Please upload a valid text-based PDF.'
         });
       } finally {
         try { fs.unlinkSync(tmpPath); } catch {}
@@ -155,7 +156,7 @@ export default async function handler(req, res) {
       if (!pdfText || pdfText.trim().length < 50) {
         return res.status(400).json({
           success: false,
-          error: 'PDF માંથી text extract ના થયો. Scanned/image PDF supported નથી — text-based PDF upload કરો.'
+          error: 'Could not extract text from PDF. Scanned/image PDFs are not supported — please upload a text-based PDF.'
         });
       }
 
@@ -163,7 +164,7 @@ export default async function handler(req, res) {
         rawText: pdfText,
         targetRole,
         instruction: "This is extracted text from the user's old resume. Restructure and enhance it into a professional resume."
-      });
+      }, resumeType);
     }
 
     return res.status(200).json({ success: true, resume, orderId });
