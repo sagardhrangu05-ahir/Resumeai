@@ -8,17 +8,18 @@
     "start": "next start -p 3000"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.30.0",
+    "lucide-react": "^1.8.0",
+    "mammoth": "^1.7.0",
+    "multer": "^1.4.5-lts.1",
     "next": "^14.2.0",
+    "nodemailer": "^6.9.0",
+    "pdf-parse": "^1.1.1",
+    "pg": "^8.12.0",
+    "puppeteer": "^22.0.0",
+    "razorpay": "^2.9.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "@anthropic-ai/sdk": "^0.30.0",
-    "razorpay": "^2.9.0",
-    "puppeteer": "^22.0.0",
-    "pdf-parse": "^1.1.1",
-    "multer": "^1.4.5-lts.1",
-    "pg": "^8.12.0",
-    "uuid": "^9.0.0",
-    "nodemailer": "^6.9.0",
-    "mammoth": "^1.7.0"
+    "uuid": "^9.0.0"
   }
 }
