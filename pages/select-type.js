@@ -14,6 +14,8 @@ export default function SelectType() {
     <>
       <Head>
         <title>Choose Resume Type — ResumeJet</title>
+        <meta name="description" content="Choose between Fresher or Experienced resume type. ResumeJet tailors AI content and templates to your career stage for maximum ATS compatibility." />
+        <link rel="canonical" href="https://resumejet.in/select-type" />
       </Head>
       <Navbar showCTA={false} />
 

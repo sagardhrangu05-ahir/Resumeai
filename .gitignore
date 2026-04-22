@@ -1,5 +1,8 @@
 node_modules/
 .next/
 .env.local
+.env
 *.log
 .DS_Store
+.resumejet-store.json
+.resumejet-store.json.tmp

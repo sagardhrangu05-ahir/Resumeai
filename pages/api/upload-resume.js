@@ -1,8 +1,11 @@
 import { generateResume, generateResumeFromImage } from '../../lib/claude';
+import { rateLimit } from '../../lib/rate-limit';
 const { v4: uuidv4 } = require('uuid');
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
+
+const VALID_RESUME_TYPES = ['fresher', 'experienced', 'it-developer', 'mba', 'ats-optimized'];
 
 export const config = {
   api: { bodyParser: false }
@@ -15,8 +18,10 @@ function parseMultipart(req) {
     req.on('data', chunk => chunks.push(chunk));
     req.on('end', () => {
       const buffer = Buffer.concat(chunks);
-      const contentType = req.headers['content-type'];
-      const boundary = contentType.split('boundary=')[1];
+      const contentType = req.headers['content-type'] || '';
+      const boundaryPart = contentType.split('boundary=')[1];
+      if (!boundaryPart) { reject(new Error('Missing multipart boundary')); return; }
+      const boundary = boundaryPart.split(';')[0].trim();
 
       const parts = {};
       const raw = buffer.toString('binary');
@@ -66,11 +71,16 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
+  const ip = req.headers['x-forwarded-for']?.split(',')[0] || req.socket.remoteAddress;
+  if (!rateLimit(ip, { windowMs: 60_000, max: 5 })) {
+    return res.status(429).json({ error: 'Too many requests. Please wait a minute.' });
+  }
+
   try {
     const parts = await parseMultipart(req);
     const file = parts.resume;
     const targetRole = parts.targetRole || '';
-    const resumeType = parts.resumeType || 'fresher';
+    const resumeType = VALID_RESUME_TYPES.includes(parts.resumeType) ? parts.resumeType : 'fresher';
 
     if (!file || !file.buffer) {
       return res.status(400).json({ success: false, error: 'No file uploaded' });

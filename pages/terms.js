@@ -7,7 +7,9 @@ export default function Terms() {
   return (
     <>
       <Head>
-        <title>Terms & Conditions — ResumeAI</title>
+        <title>Terms & Conditions — ResumeJet</title>
+        <meta name="description" content="Terms and conditions for using ResumeJet AI resume builder. Read our service terms, payment terms, and user responsibilities before getting started." />
+        <link rel="canonical" href="https://resumejet.in/terms" />
       </Head>
 
       {/* NAVBAR */}
@@ -37,19 +39,19 @@ export default function Terms() {
         {[
           {
             title: '1. Acceptance of Terms',
-            body: 'By accessing and using ResumeAI (resumejet.in), you agree to be bound by these Terms and Conditions. If you do not agree with any part of these terms, please do not use our service.'
+            body: 'By accessing and using ResumeJet (resumejet.in), you agree to be bound by these Terms and Conditions. If you do not agree with any part of these terms, please do not use our service.'
           },
           {
             title: '2. Service Description',
-            body: 'ResumeAI is a digital service that uses artificial intelligence to generate professional, ATS-optimized resumes. Users provide their personal and professional details, and our AI creates a formatted resume document in exchange for a one-time payment of ₹49.'
+            body: 'ResumeJet is a digital service that uses artificial intelligence to generate professional, ATS-optimized resumes. Users provide their personal and professional details, and our AI creates a formatted resume document in exchange for a one-time payment of ₹49.'
           },
           {
             title: '3. User Responsibilities',
-            body: 'You are responsible for providing accurate, truthful, and complete information. ResumeAI is not responsible for resumes generated based on incorrect or misleading information provided by users. You must be at least 18 years of age to use this service.'
+            body: 'You are responsible for providing accurate, truthful, and complete information. ResumeJet is not responsible for resumes generated based on incorrect or misleading information provided by users. You must be at least 18 years of age to use this service.'
           },
           {
             title: '4. Intellectual Property',
-            body: 'The resume generated for you is your personal document and you own its content. However, the ResumeAI platform, its AI models, templates, and underlying technology are the intellectual property of ResumeAI and are protected by copyright laws.'
+            body: 'The resume generated for you is your personal document and you own its content. However, the ResumeJet platform, its AI models, templates, and underlying technology are the intellectual property of ResumeJet and are protected by copyright laws.'
           },
           {
             title: '5. Payment Terms',
@@ -57,11 +59,11 @@ export default function Terms() {
           },
           {
             title: '6. Prohibited Use',
-            body: 'You may not use ResumeAI to create fake identities, fraudulent resumes, or for any illegal purpose. Misuse of the platform may result in permanent account suspension without refund.'
+            body: 'You may not use ResumeJet to create fake identities, fraudulent resumes, or for any illegal purpose. Misuse of the platform may result in permanent account suspension without refund.'
           },
           {
             title: '7. Limitation of Liability',
-            body: 'ResumeAI provides the service "as is" without warranty. We are not responsible for any job rejection, hiring decisions, or outcomes related to using our generated resumes. Our maximum liability is limited to the amount paid for the service (₹49).'
+            body: 'ResumeJet provides the service "as is" without warranty. We are not responsible for any job rejection, hiring decisions, or outcomes related to using our generated resumes. Our maximum liability is limited to the amount paid for the service (₹49).'
           },
           {
             title: '8. Changes to Terms',
@@ -90,7 +92,7 @@ export default function Terms() {
 
       {/* FOOTER */}
       <footer className="footer">
-        <p>© 2026 ResumeAI. All rights reserved.</p>
+        <p>© 2026 ResumeJet. All rights reserved.</p>
         <div style={{ display: 'flex', gap: 20, justifyContent: 'center', flexWrap: 'wrap', marginTop: 12 }}>
           <a href="/terms" style={{ color: '#B0B0D0', fontSize: 13 }}>Terms & Conditions</a>
           <a href="/privacy" style={{ color: '#B0B0D0', fontSize: 13 }}>Privacy Policy</a>

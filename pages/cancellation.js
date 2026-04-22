@@ -7,7 +7,9 @@ export default function Cancellation() {
   return (
     <>
       <Head>
-        <title>Cancellation & Refunds — ResumeAI</title>
+        <title>Cancellation & Refunds — ResumeJet</title>
+        <meta name="description" content="ResumeJet cancellation and refund policy. Technical failure guarantee — if your resume fails to generate, you get a full refund. Learn more about our policy." />
+        <link rel="canonical" href="https://resumejet.in/cancellation" />
       </Head>
 
       {/* NAVBAR */}
@@ -43,7 +45,7 @@ export default function Cancellation() {
             📋 Quick Summary
           </p>
           <p style={{ color: '#B0B0D0', fontSize: 14, lineHeight: 1.7 }}>
-            ResumeAI offers a ₹49 digital service. Since the resume is generated and delivered instantly upon payment,
+            ResumeJet offers a ₹49 digital service. Since the resume is generated and delivered instantly upon payment,
             we generally follow a no-refund policy. However, we do process refunds in genuine cases
             such as payment failures or technical non-delivery. Read below for full details.
           </p>
@@ -52,7 +54,7 @@ export default function Cancellation() {
         {[
           {
             title: '1. Cancellation Policy',
-            body: 'Since ResumeAI is a digital service that begins processing immediately upon payment confirmation, cancellation is not possible once the order is placed and payment is received. We encourage users to review the service details carefully before making a payment.'
+            body: 'Since ResumeJet is a digital service that begins processing immediately upon payment confirmation, cancellation is not possible once the order is placed and payment is received. We encourage users to review the service details carefully before making a payment.'
           },
           {
             title: '2. Refund Eligibility',
@@ -97,7 +99,7 @@ export default function Cancellation() {
 
       {/* FOOTER */}
       <footer className="footer">
-        <p>© 2026 ResumeAI. All rights reserved.</p>
+        <p>© 2026 ResumeJet. All rights reserved.</p>
         <div style={{ display: 'flex', gap: 20, justifyContent: 'center', flexWrap: 'wrap', marginTop: 12 }}>
           <a href="/terms" style={{ color: '#B0B0D0', fontSize: 13 }}>Terms & Conditions</a>
           <a href="/privacy" style={{ color: '#B0B0D0', fontSize: 13 }}>Privacy Policy</a>

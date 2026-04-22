@@ -1,5 +1,6 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/router';
+import Head from 'next/head';
 import { FileText, Upload, User, Briefcase, GraduationCap, Wrench, FolderOpen, Award, Bot } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import { useToast } from '../components/Toast';
@@ -7,6 +8,10 @@ import { RESUME_TYPES } from '../config/resumeTypes';
 
 const emptyExp     = { title: '', company: '', duration: '', description: '' };
 const emptyEdu     = { degree: '', institution: '', year: '', score: '' };
+const defaultEdu   = [
+  { degree: '', institution: '', year: '', score: '', _label: 'School (10th / 12th)' },
+  { degree: '', institution: '', year: '', score: '', _label: 'College / University' }
+];
 const emptyProject = { name: '', description: '', tech_used: '' };
 const emptyIntern  = { role: '', company: '', duration: '', description: '' };
 
@@ -33,19 +38,54 @@ export default function Builder() {
   const [profilePhoto, setProfilePhoto] = useState(null);
   const [dragOver,     setDragOver    ] = useState(false);
   const [errors,       setErrors      ] = useState({});
+  const [analysis,     setAnalysis    ] = useState(null);
+  const [analyzing,    setAnalyzing   ] = useState(false);
 
   const [formData, setFormData] = useState({
     name: '', email: '', phone: '', location: '', linkedin: '', github: '',
     summary: '', targetRole: '', jobDescription: '',
     techStack: '',
     experience:     [{ ...emptyExp }],
-    education:      [{ ...emptyEdu }],
+    education:      defaultEdu.map(e => ({ ...e })),
     internships:    [{ ...emptyIntern }],
     skills: '',
     projects:       [{ ...emptyProject }],
     achievements:   '',
     certifications: ''
   });
+
+  const DRAFT_KEY = 'resumejet_draft';
+
+  // Restore draft on mount
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(DRAFT_KEY);
+      if (!saved) return;
+      const { formData: savedForm, profilePhoto: savedPhoto, savedAt } = JSON.parse(saved);
+      const ageMin = (Date.now() - savedAt) / 60000;
+      if (ageMin > 60 * 24) { localStorage.removeItem(DRAFT_KEY); return; } // discard drafts > 1 day
+      if (savedForm && window.confirm('Resume draft found. Restore your previous data?')) {
+        setFormData(prev => ({ ...prev, ...savedForm }));
+        if (savedPhoto) setProfilePhoto(savedPhoto);
+      }
+    } catch { /* ignore */ }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Autosave every 30 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      try {
+        const hasData = formData.name.trim() || formData.email.trim();
+        if (!hasData) return;
+        localStorage.setItem(DRAFT_KEY, JSON.stringify({ formData, profilePhoto, savedAt: Date.now() }));
+      } catch { /* ignore */ }
+    }, 30000);
+    return () => clearInterval(interval);
+  }, [formData, profilePhoto]);
+
+  // Clear draft after successful submission
+  const clearDraft = () => { try { localStorage.removeItem(DRAFT_KEY); } catch { /* ignore */ } };
 
   const updateField     = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -101,7 +141,11 @@ export default function Builder() {
   const validateForm = () => {
     const newErrors = {};
     if (!formData.name.trim())  newErrors.name  = 'Name required';
-    if (!formData.email.trim()) newErrors.email = 'Email required';
+    if (!formData.email.trim()) {
+      newErrors.email = 'Email required';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email.trim())) {
+      newErrors.email = 'Enter a valid email address';
+    }
     if (has('jobDescription') && !formData.jobDescription.trim()) {
       newErrors.jobDescription = 'Paste job description for ATS optimization';
     }
@@ -124,6 +168,7 @@ export default function Builder() {
       });
       const result = await res.json();
       if (result.success) {
+        clearDraft();
         sessionStorage.setItem('resumeData',    JSON.stringify(result.resume));
         sessionStorage.setItem('orderId',       result.orderId);
         sessionStorage.setItem('selectedType',  typeSlug || 'fresher');
@@ -166,6 +211,25 @@ export default function Builder() {
     validateAndSetFile(e.dataTransfer.files[0]);
   };
 
+  const handleAnalyze = async () => {
+    if (!uploadedFile) { toast('Please upload a file first!', 'error'); return; }
+    setAnalyzing(true);
+    setAnalysis(null);
+    try {
+      const fd = new FormData();
+      fd.append('resume', uploadedFile);
+      fd.append('targetRole', targetRole);
+      const res  = await fetch('/api/analyze-resume', { method: 'POST', body: fd });
+      const data = await res.json();
+      if (!res.ok || !data.success) throw new Error(data.error || 'Analysis failed');
+      setAnalysis(data.analysis);
+    } catch (err) {
+      toast(err.message || 'Analysis failed. Try again.', 'error');
+    } finally {
+      setAnalyzing(false);
+    }
+  };
+
   const handleUploadSubmit = async () => {
     if (!uploadedFile) {
       toast('Please upload a file first!', 'error');
@@ -187,6 +251,7 @@ export default function Builder() {
       const res    = await fetch('/api/upload-resume', { method: 'POST', body: fd });
       const result = await res.json();
       if (result.success) {
+        clearDraft();
         sessionStorage.setItem('resumeData',    JSON.stringify(result.resume));
         sessionStorage.setItem('orderId',       result.orderId);
         sessionStorage.setItem('selectedType',  typeSlug  || 'fresher');
@@ -226,6 +291,11 @@ export default function Builder() {
 
   return (
     <div className="builder-page" style={{ paddingTop: 80 }}>
+      <Head>
+        <title>Build Your Resume — ResumeJet</title>
+        <meta name="description" content="Fill in your details and let Claude AI write your professional resume. ATS-optimized content generated automatically. Download as PDF in minutes." />
+        <link rel="canonical" href="https://resumejet.in/builder" />
+      </Head>
       <Navbar showCTA={false} />
 
       {/* Progress Stepper */}
@@ -551,36 +621,45 @@ export default function Builder() {
               <h3><GraduationCap size={14} style={{ marginRight: 8, verticalAlign: 'middle' }} />Education</h3>
               {formData.education.map((edu, i) => (
                 <div key={i} style={{ marginBottom: 16, padding: 16, background: '#0A0A1A', borderRadius: 12 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+                    <span style={{ fontSize: 12, fontWeight: 700, color: '#FFD700' }}>
+                      {i === 0 ? '🏫 School (10th / 12th)' : i === 1 ? '🎓 College / University' : '🎓 Masters / PhD'}
+                    </span>
+                    {i >= 2 && (
+                      <button className="remove-btn" onClick={() => removeArrayItem('education', i)}>✕ Remove</button>
+                    )}
+                  </div>
                   <div className="form-row">
                     <div className="form-group">
-                      <label>Degree</label>
-                      <input type="text" placeholder="B.Tech Computer Science"
+                      <label>{i === 0 ? 'Board / Stream' : 'Degree'}</label>
+                      <input type="text"
+                        placeholder={i === 0 ? 'HSC Science / CBSE 10th' : i === 1 ? 'B.Tech Computer Science' : 'M.Tech / MBA / MCA'}
                         value={edu.degree} onChange={e => updateArrayItem('education', i, 'degree', e.target.value)} />
                     </div>
                     <div className="form-group">
-                      <label>Institution</label>
-                      <input type="text" placeholder="IIT Mumbai"
+                      <label>{i === 0 ? 'School Name' : 'College / University'}</label>
+                      <input type="text"
+                        placeholder={i === 0 ? "St. Xavier's High School, Surat" : i === 1 ? 'SVNIT / GTU, Surat' : 'University Name'}
                         value={edu.institution} onChange={e => updateArrayItem('education', i, 'institution', e.target.value)} />
                     </div>
                   </div>
                   <div className="form-row">
                     <div className="form-group">
                       <label>Year</label>
-                      <input type="text" placeholder="2020 - 2024"
+                      <input type="text"
+                        placeholder={i === 0 ? '2018 - 2020' : i === 1 ? '2020 - 2024' : '2024 - 2026'}
                         value={edu.year} onChange={e => updateArrayItem('education', i, 'year', e.target.value)} />
                     </div>
                     <div className="form-group">
-                      <label>Score/CGPA</label>
-                      <input type="text" placeholder="8.5 CGPA"
+                      <label>Score / CGPA / %</label>
+                      <input type="text"
+                        placeholder={i === 0 ? '85%' : '8.5 CGPA'}
                         value={edu.score} onChange={e => updateArrayItem('education', i, 'score', e.target.value)} />
                     </div>
                   </div>
-                  {formData.education.length > 1 && (
-                    <button className="remove-btn" onClick={() => removeArrayItem('education', i)}>✕ Remove</button>
-                  )}
                 </div>
               ))}
-              <button className="add-btn" onClick={() => addArrayItem('education', emptyEdu)}>+ Add More Education</button>
+              <button className="add-btn" onClick={() => addArrayItem('education', emptyEdu)}>+ Add More (Masters / PhD)</button>
             </div>
           )}
 
@@ -713,19 +792,152 @@ export default function Builder() {
               <label htmlFor="targetRoleUpload">Target Job Role (optional but recommended)</label>
               <input id="targetRoleUpload" type="text"
                 placeholder="e.g., Software Engineer, Data Analyst"
-                value={targetRole} onChange={e => setTargetRole(e.target.value)} />
+                value={targetRole} onChange={e => { setTargetRole(e.target.value); setAnalysis(null); }} />
             </div>
 
-            <button
-              className="btn-primary" onClick={handleUploadSubmit} disabled={!uploadedFile}
-              style={{ width: '100%', justifyContent: 'center', padding: '16px', marginTop: 16 }}
-            >
-              <Bot size={18} style={{ marginRight: 8 }} />
-              Upgrade My Resume with AI
-            </button>
-            <p style={{ color: '#6B6B8D', fontSize: 12, marginTop: 8, textAlign: 'center' }}>
-              AI will read your old resume and build a better version • Preview free
-            </p>
+            {/* Profile Photo */}
+            <div style={{ marginBottom: 20 }}>
+              <label style={{ display: 'block', fontSize: 13, color: '#B0B0D0', marginBottom: 10, fontWeight: 500 }}>
+                Profile Photo (optional — will appear on resume)
+              </label>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                <div onClick={() => photoRef.current?.click()} style={{
+                  width: 64, height: 64, borderRadius: '50%',
+                  border: profilePhoto ? '2px solid #FFD700' : '2px dashed #2A2A5A',
+                  cursor: 'pointer', display: 'flex', alignItems: 'center',
+                  justifyContent: 'center', overflow: 'hidden', background: '#12122A', flexShrink: 0
+                }}>
+                  {profilePhoto
+                    ? <img src={profilePhoto} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    : <User size={24} color="#6B6B8D" />}
+                </div>
+                <div>
+                  <button onClick={() => photoRef.current?.click()} style={{
+                    background: 'transparent', border: '1px solid #FFD700', color: '#FFD700',
+                    borderRadius: 8, padding: '6px 14px', cursor: 'pointer', fontSize: 12, fontFamily: 'Poppins, sans-serif'
+                  }}>{profilePhoto ? 'Change Photo' : '+ Add Photo'}</button>
+                  {profilePhoto && (
+                    <button onClick={() => { setProfilePhoto(null); toast('Photo removed', 'info'); }} style={{
+                      background: 'transparent', border: '1px solid #FF4444', color: '#FF4444',
+                      borderRadius: 8, padding: '6px 14px', cursor: 'pointer', fontSize: 12, marginLeft: 8, fontFamily: 'Poppins, sans-serif'
+                    }}>Remove</button>
+                  )}
+                  <p style={{ color: '#6B6B8D', fontSize: 11, marginTop: 4 }}>JPG / PNG • max 3 MB</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Analyze button */}
+            {!analysis && (
+              <button
+                onClick={handleAnalyze} disabled={!uploadedFile || analyzing}
+                style={{
+                  width: '100%', padding: '14px', borderRadius: 10, border: '2px solid #FFD700',
+                  background: 'transparent', color: '#FFD700', fontSize: 15, fontWeight: 700,
+                  cursor: uploadedFile ? 'pointer' : 'not-allowed', fontFamily: 'Poppins, sans-serif',
+                  opacity: uploadedFile ? 1 : 0.5, marginBottom: 8, transition: 'all 0.2s'
+                }}
+              >
+                {analyzing ? '🔍 Analyzing your resume…' : '🔍 Check ATS Score & Issues'}
+              </button>
+            )}
+
+            {/* ATS Analysis Result */}
+            {analysis && (
+              <div style={{ marginBottom: 20 }}>
+                {/* Score */}
+                <div style={{
+                  background: '#0A0A1A', borderRadius: 16, padding: '24px 20px',
+                  marginBottom: 16, textAlign: 'center', border: '1px solid #2A2A5A'
+                }}>
+                  <p style={{ color: '#B0B0D0', fontSize: 13, marginBottom: 8 }}>Your ATS Score</p>
+                  <div style={{
+                    fontSize: 56, fontWeight: 900, lineHeight: 1,
+                    color: analysis.ats_score >= 66 ? '#00E676' : analysis.ats_score >= 41 ? '#FFD700' : '#FF5252'
+                  }}>{analysis.ats_score}<span style={{ fontSize: 24 }}>/100</span></div>
+                  <div style={{
+                    display: 'inline-block', marginTop: 8, padding: '3px 14px', borderRadius: 20, fontSize: 12, fontWeight: 700,
+                    background: analysis.ats_score >= 66 ? 'rgba(0,230,118,0.15)' : analysis.ats_score >= 41 ? 'rgba(255,215,0,0.15)' : 'rgba(255,82,82,0.15)',
+                    color: analysis.ats_score >= 66 ? '#00E676' : analysis.ats_score >= 41 ? '#FFD700' : '#FF5252',
+                    border: `1px solid ${analysis.ats_score >= 66 ? '#00E67650' : analysis.ats_score >= 41 ? '#FFD70050' : '#FF525250'}`
+                  }}>{analysis.score_label}</div>
+                  <p style={{ color: '#B0B0D0', fontSize: 13, marginTop: 10, lineHeight: 1.6 }}>{analysis.summary}</p>
+                </div>
+
+                {/* What to update */}
+                {analysis.what_to_update?.length > 0 && (
+                  <div style={{ background: '#0A0A1A', borderRadius: 12, padding: '16px', marginBottom: 16, border: '1px solid #2A2A5A' }}>
+                    <p style={{ fontSize: 12, fontWeight: 700, color: '#FFD700', marginBottom: 10, textTransform: 'uppercase', letterSpacing: 1 }}>What Needs Update</p>
+                    {analysis.what_to_update.map((item, i) => (
+                      <div key={i} style={{ display: 'flex', gap: 8, alignItems: 'flex-start', marginBottom: 6 }}>
+                        <span style={{ color: '#FFD700', fontSize: 12, marginTop: 1 }}>→</span>
+                        <span style={{ fontSize: 13, color: '#B0B0D0' }}>{item}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Issues — all visible */}
+                <div style={{ marginBottom: 4 }}>
+                  <p style={{ fontSize: 12, fontWeight: 700, color: '#FF5252', marginBottom: 10, textTransform: 'uppercase', letterSpacing: 1 }}>
+                    Issues Found ({analysis.issues?.length || 0})
+                  </p>
+
+                  {analysis.issues?.map((issue, i) => {
+                    const severityColor = issue.severity === 'high' ? '#FF5252' : issue.severity === 'medium' ? '#FFD700' : '#00E676';
+                    return (
+                      <div key={i} style={{
+                        background: '#0A0A1A', border: `1px solid ${severityColor}40`,
+                        borderRadius: 10, padding: '12px 14px', marginBottom: 8,
+                      }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+                          <span style={{ fontSize: 13, fontWeight: 700, color: '#fff' }}>{issue.title}</span>
+                          <span style={{
+                            fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 20,
+                            background: severityColor + '20', color: severityColor, border: `1px solid ${severityColor}40`
+                          }}>{issue.severity?.toUpperCase()}</span>
+                        </div>
+                        <p style={{ fontSize: 12, color: '#B0B0D0', lineHeight: 1.6 }}>{issue.desc}</p>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* CTA */}
+                <button
+                  className="btn-primary"
+                  onClick={handleUploadSubmit}
+                  style={{ width: '100%', justifyContent: 'center', padding: '16px', fontSize: 15 }}
+                >
+                  <Bot size={18} style={{ marginRight: 8 }} />
+                  Fix All Issues — Build Better Resume →
+                </button>
+                <button
+                  onClick={() => setAnalysis(null)}
+                  style={{
+                    width: '100%', marginTop: 8, padding: '10px', background: 'transparent',
+                    border: '1px solid #2A2A5A', color: '#6B6B8D', borderRadius: 8,
+                    cursor: 'pointer', fontSize: 12, fontFamily: 'Poppins, sans-serif'
+                  }}
+                >Re-analyze</button>
+              </div>
+            )}
+
+            {!analysis && (
+              <>
+                <div style={{ textAlign: 'center', color: '#6B6B8D', fontSize: 12, margin: '8px 0' }}>— or —</div>
+                <button
+                  className="btn-primary" onClick={handleUploadSubmit} disabled={!uploadedFile}
+                  style={{ width: '100%', justifyContent: 'center', padding: '14px' }}
+                >
+                  <Bot size={18} style={{ marginRight: 8 }} />
+                  Upgrade My Resume with AI
+                </button>
+                <p style={{ color: '#6B6B8D', fontSize: 12, marginTop: 8, textAlign: 'center' }}>
+                  AI reads your resume and builds a better version • Preview free
+                </p>
+              </>
+            )}
           </div>
         </div>
       )}

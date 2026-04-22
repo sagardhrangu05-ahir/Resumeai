@@ -7,7 +7,9 @@ export default function Shipping() {
   return (
     <>
       <Head>
-        <title>Shipping Policy — ResumeAI</title>
+        <title>Shipping Policy — ResumeJet</title>
+        <meta name="description" content="ResumeJet shipping policy. All resumes are delivered digitally as PDF downloads instantly after payment. No physical shipping involved." />
+        <link rel="canonical" href="https://resumejet.in/shipping" />
       </Head>
 
       {/* NAVBAR */}
@@ -43,7 +45,7 @@ export default function Shipping() {
             ⚡ 100% Digital Service — Instant Delivery
           </p>
           <p style={{ color: '#B0B0D0', marginTop: 8, fontSize: 14 }}>
-            ResumeAI is a completely digital product. There is no physical shipping involved.
+            ResumeJet is a completely digital product. There is no physical shipping involved.
             Your resume is delivered digitally within minutes of payment.
           </p>
         </div>
@@ -51,7 +53,7 @@ export default function Shipping() {
         {[
           {
             title: '1. Nature of Product',
-            body: 'ResumeAI provides a digital service — AI-generated professional resumes. Since our product is entirely digital, there is no physical shipping, no packaging, and no delivery charges. No physical goods are dispatched at any point.'
+            body: 'ResumeJet provides a digital service — AI-generated professional resumes. Since our product is entirely digital, there is no physical shipping, no packaging, and no delivery charges. No physical goods are dispatched at any point.'
           },
           {
             title: '2. Delivery Method',
@@ -63,7 +65,7 @@ export default function Shipping() {
           },
           {
             title: '4. No Physical Shipping',
-            body: 'ResumeAI does not ship any physical products. Therefore, there are no shipping fees, no courier charges, and no tracking numbers. Your purchase is limited to a digital document delivered electronically.'
+            body: 'ResumeJet does not ship any physical products. Therefore, there are no shipping fees, no courier charges, and no tracking numbers. Your purchase is limited to a digital document delivered electronically.'
           },
           {
             title: '5. Accessibility',
@@ -75,7 +77,7 @@ export default function Shipping() {
           },
           {
             title: '7. Geographic Availability',
-            body: 'ResumeAI is available to users across India. Since delivery is digital, there are no geographic restrictions or additional charges for users in any part of India.'
+            body: 'ResumeJet is available to users across India. Since delivery is digital, there are no geographic restrictions or additional charges for users in any part of India.'
           }
         ].map((section, i) => (
           <div key={i} style={{
@@ -92,7 +94,7 @@ export default function Shipping() {
 
       {/* FOOTER */}
       <footer className="footer">
-        <p>© 2026 ResumeAI. All rights reserved.</p>
+        <p>© 2026 ResumeJet. All rights reserved.</p>
         <div style={{ display: 'flex', gap: 20, justifyContent: 'center', flexWrap: 'wrap', marginTop: 12 }}>
           <a href="/terms" style={{ color: '#B0B0D0', fontSize: 13 }}>Terms & Conditions</a>
           <a href="/privacy" style={{ color: '#B0B0D0', fontSize: 13 }}>Privacy Policy</a>

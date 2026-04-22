@@ -5,7 +5,7 @@ import { useToast } from '../components/Toast';
 import Navbar from '../components/Navbar';
 import { PLANS } from '../config/pricing';
 import { RESUME_DESIGNS } from '../config/resumeDesigns';
-import { getCredits, setCredits, useCredit } from '../lib/credits';
+import { getCredits, setCredits, useCredit, clearCredits, getSession } from '../lib/credits';
 
 export default function Preview() {
   const router = useRouter();
@@ -22,11 +22,32 @@ export default function Preview() {
   const [downloadDesign, setDownloadDesign] = useState('classic-pro');
 
   useEffect(() => {
-    const data   = sessionStorage.getItem('resumeData');
-    const oid    = sessionStorage.getItem('orderId');
-    const photo  = sessionStorage.getItem('profilePhoto');
-    const design = sessionStorage.getItem('selectedDesign');
-    if (!data) { router.push('/select-type'); return; }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    let data   = sessionStorage.getItem('resumeData');
+    let oid    = sessionStorage.getItem('orderId');
+    let photo  = sessionStorage.getItem('profilePhoto');
+    let design = sessionStorage.getItem('selectedDesign');
+
+    // If sessionStorage was cleared (tab closed), restore from localStorage backup
+    if (!data) {
+      const existing = getCredits();
+      if (existing && existing.creditsDisplay > 0) {
+        const saved = getSession();
+        if (saved?.resumeData) {
+          data   = saved.resumeData;
+          oid    = saved.orderId    || '';
+          photo  = saved.profilePhoto || null;
+          design = saved.selectedDesign || 'classic-pro';
+          // Restore into sessionStorage for this session
+          sessionStorage.setItem('resumeData', data);
+          if (oid)   sessionStorage.setItem('orderId', oid);
+          if (photo) sessionStorage.setItem('profilePhoto', photo);
+          if (design) sessionStorage.setItem('selectedDesign', design);
+        }
+      }
+    }
+
+    if (!data) { void router.push('/select-type'); return; }
     try {
       setResume(JSON.parse(data));
       setOrderId(oid || '');
@@ -79,13 +100,14 @@ export default function Preview() {
           const verifyResult = await verifyRes.json();
           if (verifyResult.success) {
             const credData = setCredits({
-              plan:           plan.id,
-              downloadToken:  verifyResult.downloadToken,
-              paymentId:      verifyResult.paymentId,
-              razorpayOrderId: verifyResult.razorpayOrderId
+              plan:             plan.id,
+              downloadToken:    verifyResult.downloadToken,
+              paymentId:        verifyResult.paymentId,
+              razorpayOrderId:  verifyResult.razorpayOrderId,
+              downloadsAllowed: verifyResult.downloadsAllowed,
             });
             setCreditsState(credData);
-            toast(`Payment successful! You have ${credData.credits} downloads.`, 'success');
+            toast(`Payment successful! You have ${credData.creditsDisplay} downloads.`, 'success');
           } else {
             toast('Payment verification failed. Contact support.', 'error');
           }
@@ -110,7 +132,7 @@ export default function Preview() {
   // ===== DOWNLOAD PDF =====
   const handleDownload = async () => {
     const current = getCredits();
-    if (!current || current.credits <= 0) {
+    if (!current || current.creditsDisplay <= 0) {
       toast('No downloads remaining. Please purchase again.', 'error');
       return;
     }
@@ -132,11 +154,11 @@ export default function Preview() {
       });
 
       if (res.ok) {
-        // Deduct credit
-        const updated = useCredit();
-        setCreditsState(updated ? { ...updated, credits: updated.credits } : null);
-
         const blob = await res.blob();
+        // Deduct credit only after blob is fully received
+        const updated = useCredit();
+        setCreditsState(updated ? { ...updated } : null);
+
         const url  = window.URL.createObjectURL(blob);
         const a    = document.createElement('a');
         a.href     = url;
@@ -165,7 +187,8 @@ export default function Preview() {
     );
   }
 
-  const creditsLeft = credits?.credits ?? 0;
+  const creditsLeft = credits?.creditsDisplay ?? 0;
+  const wasPaid     = credits !== null;
   const isPaid      = creditsLeft > 0;
 
   // ===== PAID / CREDITS VIEW =====
@@ -243,11 +266,46 @@ export default function Preview() {
     );
   }
 
+  // ===== ALL CREDITS USED VIEW =====
+  if (wasPaid && creditsLeft === 0) {
+    return (
+      <>
+        <Head><title>Downloads Used — ResumeJet</title></Head>
+        <Navbar showCTA={false} />
+        <div className="success-page">
+          <div>
+            <div className="success-icon" style={{ fontSize: 48 }}>✅</div>
+            <h1>All Downloads Used</h1>
+            <p style={{ color: '#B0B0D0', marginBottom: 24 }}>
+              You have used all your downloads from this purchase.
+            </p>
+            <p style={{ color: '#6B6B8D', fontSize: 13, marginBottom: 32 }}>
+              Need more downloads? Purchase a new plan below.
+            </p>
+            <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
+              <button className="btn-secondary" onClick={() => router.push('/select-type')}>
+                ← Build Another Resume
+              </button>
+              <button className="btn-primary" onClick={() => {
+                clearCredits();
+                setCreditsState(null);
+              }}>
+                Buy More Downloads
+              </button>
+            </div>
+          </div>
+        </div>
+      </>
+    );
+  }
+
   // ===== PREVIEW VIEW (unpaid) =====
   return (
     <>
       <Head>
         <title>Resume Preview — ResumeJet</title>
+        <meta name="description" content="Preview your AI-generated resume before downloading. Pay once to get your professional PDF without watermarks." />
+        <link rel="canonical" href="https://resumejet.in/preview" />
         <script src="https://checkout.razorpay.com/v1/checkout.js" async></script>
       </Head>
 

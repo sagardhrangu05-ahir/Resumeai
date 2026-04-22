@@ -8,30 +8,12 @@ export const RESUME_TYPES = [
              "skills", "projects", "internships", "certifications"]
   },
   {
-    slug: "it-developer",
-    title: "IT / Developer Resume",
-    icon: "💻",
-    tagline: "Get shortlisted at top tech companies",
-    fields: ["name", "email", "phone", "github", "linkedin",
-             "summary", "techStack", "experience",
-             "projects", "education", "certifications"]
-  },
-  {
-    slug: "mba",
-    title: "MBA / Management Resume",
-    icon: "📊",
-    tagline: "Leadership-focused, business-driven",
+    slug: "experienced",
+    title: "Experienced Resume",
+    icon: "💼",
+    tagline: "Showcase your career growth and achievements",
     fields: ["name", "email", "phone", "linkedin",
-             "summary", "experience", "achievements",
-             "education", "skills", "certifications"]
-  },
-  {
-    slug: "ats-optimized",
-    title: "ATS-Optimized Resume",
-    icon: "🎯",
-    tagline: "Beat ATS filters, reach human eyes",
-    fields: ["name", "email", "phone", "targetRole",
-             "jobDescription", "summary", "experience",
-             "skills", "education", "certifications"]
+             "summary", "experience", "skills",
+             "education", "certifications", "achievements"]
   }
 ];

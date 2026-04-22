@@ -7,7 +7,9 @@ export default function Privacy() {
   return (
     <>
       <Head>
-        <title>Privacy Policy — ResumeAI</title>
+        <title>Privacy Policy — ResumeJet</title>
+        <meta name="description" content="ResumeJet's privacy policy. Learn how we handle your data, what we collect, and how your information is protected when using our AI resume builder." />
+        <link rel="canonical" href="https://resumejet.in/privacy" />
       </Head>
 
       {/* NAVBAR */}
@@ -37,7 +39,7 @@ export default function Privacy() {
         {[
           {
             title: '1. Information We Collect',
-            body: 'We collect personal information that you voluntarily provide when using ResumeAI, including: full name, email address, phone number, work experience, educational qualifications, skills, and other details needed to generate your resume. We also collect payment information processed securely through Razorpay (we do not store card details).'
+            body: 'We collect personal information that you voluntarily provide when using ResumeJet, including: full name, email address, phone number, work experience, educational qualifications, skills, and other details needed to generate your resume. We also collect payment information processed securely through Razorpay (we do not store card details).'
           },
           {
             title: '2. How We Use Your Information',
@@ -53,7 +55,7 @@ export default function Privacy() {
           },
           {
             title: '5. Cookies',
-            body: 'ResumeAI uses minimal cookies for session management and analytics. We do not use tracking cookies for advertising. You can disable cookies in your browser settings, though this may affect functionality.'
+            body: 'ResumeJet uses minimal cookies for session management and analytics. We do not use tracking cookies for advertising. You can disable cookies in your browser settings, though this may affect functionality.'
           },
           {
             title: '6. Your Rights',
@@ -65,7 +67,7 @@ export default function Privacy() {
           },
           {
             title: '8. Children\'s Privacy',
-            body: 'ResumeAI is not intended for users under 18 years of age. We do not knowingly collect personal information from minors.'
+            body: 'ResumeJet is not intended for users under 18 years of age. We do not knowingly collect personal information from minors.'
           },
           {
             title: '9. Changes to This Policy',
@@ -73,7 +75,7 @@ export default function Privacy() {
           },
           {
             title: '10. Contact Us',
-            body: 'For privacy-related queries, contact: sagardhrangu05@gmail.com | ResumeAI, Surat, Gujarat, India.'
+            body: 'For privacy-related queries, contact: sagardhrangu05@gmail.com | ResumeJet, Surat, Gujarat, India.'
           }
         ].map((section, i) => (
           <div key={i} style={{
@@ -90,7 +92,7 @@ export default function Privacy() {
 
       {/* FOOTER */}
       <footer className="footer">
-        <p>© 2026 ResumeAI. All rights reserved.</p>
+        <p>© 2026 ResumeJet. All rights reserved.</p>
         <div style={{ display: 'flex', gap: 20, justifyContent: 'center', flexWrap: 'wrap', marginTop: 12 }}>
           <a href="/terms" style={{ color: '#B0B0D0', fontSize: 13 }}>Terms & Conditions</a>
           <a href="/privacy" style={{ color: '#B0B0D0', fontSize: 13 }}>Privacy Policy</a>

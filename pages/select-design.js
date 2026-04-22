@@ -2,58 +2,69 @@ import { useState } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
 import Navbar from '../components/Navbar';
-import { RESUME_DESIGNS } from '../config/resumeDesigns';
+import { RESUME_DESIGN_GROUPS } from '../config/resumeDesigns';
 
-// Mini CSS preview of each design
-function DesignMiniPreview({ design }) {
-  const styles = {
-    'classic-pro': (
-      <div style={{ fontFamily: 'Georgia, serif', padding: 12, background: '#fff', height: '100%', color: '#1a1a1a' }}>
-        <div style={{ borderBottom: '2px solid #1a1a1a', paddingBottom: 6, marginBottom: 8 }}>
-          <div style={{ fontWeight: 700, fontSize: 10 }}>JOHN DOE</div>
-          <div style={{ fontSize: 7, color: '#555' }}>john@email.com • +91 98765 43210</div>
+function DesignMiniPreview({ id, colors }) {
+  // Classic Pro variants
+  if (id.startsWith('classic-pro')) {
+    const { primary, accent, bg } = colors;
+    return (
+      <div style={{ fontFamily: 'Georgia, serif', padding: 12, background: bg, height: '100%', color: primary }}>
+        <div style={{ borderBottom: `2px solid ${primary}`, paddingBottom: 6, marginBottom: 8 }}>
+          <div style={{ fontWeight: 700, fontSize: 10, color: primary }}>JOHN DOE</div>
+          <div style={{ fontSize: 7, color: accent }}>john@email.com • +91 98765 43210</div>
         </div>
         {['EXPERIENCE', 'EDUCATION', 'SKILLS'].map(s => (
           <div key={s} style={{ marginBottom: 6 }}>
-            <div style={{ background: '#1a1a1a', color: '#fff', fontSize: 6, padding: '1px 4px', marginBottom: 3, letterSpacing: 1 }}>{s}</div>
-            <div style={{ fontSize: 6, color: '#333', lineHeight: 1.5 }}>
+            <div style={{ background: primary, color: '#fff', fontSize: 6, padding: '1px 4px', marginBottom: 3, letterSpacing: 1 }}>{s}</div>
+            <div style={{ fontSize: 6, color: accent, lineHeight: 1.5 }}>
               <div style={{ fontWeight: 600 }}>Title at Company</div>
-              <div style={{ color: '#555' }}>• Achieved result with 40% improvement</div>
+              <div style={{ color: accent, opacity: 0.8 }}>• Achieved result with 40% improvement</div>
             </div>
           </div>
         ))}
       </div>
-    ),
-    'modern-split': (
+    );
+  }
+
+  // Modern Split variants
+  if (id.startsWith('modern-split')) {
+    const { sidebar, accent, bg } = colors;
+    return (
       <div style={{ display: 'flex', height: '100%', fontFamily: 'Inter, sans-serif' }}>
-        <div style={{ width: '35%', background: '#1e3a5f', padding: 10, color: '#fff' }}>
-          <div style={{ width: 28, height: 28, borderRadius: '50%', background: '#2196F3', margin: '0 auto 6px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 700 }}>J</div>
+        <div style={{ width: '35%', background: sidebar, padding: 10, color: '#fff' }}>
+          <div style={{ width: 28, height: 28, borderRadius: '50%', background: accent, margin: '0 auto 6px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 700 }}>J</div>
           <div style={{ fontSize: 6, marginBottom: 8, borderBottom: '1px solid rgba(255,255,255,0.2)', paddingBottom: 6 }}>
             <div style={{ fontWeight: 600, marginBottom: 2 }}>CONTACT</div>
-            <div style={{ color: '#aaa', lineHeight: 1.6 }}>email@co.com<br />+91 98765<br />Mumbai</div>
+            <div style={{ color: 'rgba(255,255,255,0.6)', lineHeight: 1.6 }}>email@co.com<br />+91 98765<br />Mumbai</div>
           </div>
           <div style={{ fontSize: 6 }}>
             <div style={{ fontWeight: 600, marginBottom: 2 }}>SKILLS</div>
             {['React', 'Node.js', 'Python'].map(s => (
-              <div key={s} style={{ background: '#2196F3', borderRadius: 8, padding: '1px 4px', marginBottom: 2, fontSize: 5 }}>{s}</div>
+              <div key={s} style={{ background: accent, borderRadius: 8, padding: '1px 4px', marginBottom: 2, fontSize: 5 }}>{s}</div>
             ))}
           </div>
         </div>
-        <div style={{ flex: 1, padding: 10, background: '#f8f9fa', color: '#1e3a5f' }}>
+        <div style={{ flex: 1, padding: 10, background: bg, color: sidebar }}>
           <div style={{ fontSize: 9, fontWeight: 700, marginBottom: 2 }}>JOHN DOE</div>
-          <div style={{ fontSize: 6, color: '#2196F3', marginBottom: 6 }}>Software Engineer</div>
+          <div style={{ fontSize: 6, color: accent, marginBottom: 6 }}>Software Engineer</div>
           {['EXPERIENCE', 'EDUCATION'].map(s => (
             <div key={s} style={{ marginBottom: 6 }}>
-              <div style={{ fontSize: 6, fontWeight: 700, color: '#1e3a5f', borderBottom: '1px solid #2196F3', marginBottom: 3 }}>{s}</div>
+              <div style={{ fontSize: 6, fontWeight: 700, color: sidebar, borderBottom: `1px solid ${accent}`, marginBottom: 3 }}>{s}</div>
               <div style={{ fontSize: 5, color: '#444', lineHeight: 1.5 }}>Developer at TCS<br />• Built REST APIs</div>
             </div>
           ))}
         </div>
       </div>
-    ),
-    'creative-edge': (
+    );
+  }
+
+  // Creative Edge variants
+  if (id.startsWith('creative-edge')) {
+    const { grad1, grad2, accent, badge, badgeText } = colors;
+    return (
       <div style={{ fontFamily: 'Poppins, sans-serif', height: '100%', background: '#fff' }}>
-        <div style={{ background: 'linear-gradient(135deg, #1a237e, #7c4dff)', padding: '14px 12px', color: '#fff' }}>
+        <div style={{ background: `linear-gradient(135deg, ${grad1}, ${grad2})`, padding: '14px 12px', color: '#fff' }}>
           <div style={{ fontSize: 10, fontWeight: 700 }}>JOHN DOE</div>
           <div style={{ fontSize: 6, opacity: 0.8 }}>Software Engineer</div>
           <div style={{ display: 'flex', gap: 4, marginTop: 4 }}>
@@ -65,12 +76,12 @@ function DesignMiniPreview({ design }) {
         <div style={{ padding: 10 }}>
           {['EXPERIENCE', 'SKILLS'].map(s => (
             <div key={s} style={{ marginBottom: 7 }}>
-              <div style={{ fontSize: 7, fontWeight: 700, color: '#7c4dff', marginBottom: 3 }}>{s}</div>
+              <div style={{ fontSize: 7, fontWeight: 700, color: accent, marginBottom: 3 }}>{s}</div>
               <div style={{ fontSize: 5, color: '#333', lineHeight: 1.6 }}>
                 {s === 'SKILLS'
                   ? <div style={{ display: 'flex', gap: 3, flexWrap: 'wrap' }}>
                       {['React', 'Node', 'SQL'].map(sk => (
-                        <span key={sk} style={{ background: '#ede7f6', color: '#7c4dff', borderRadius: 8, padding: '1px 5px', fontSize: 5 }}>{sk}</span>
+                        <span key={sk} style={{ background: badge, color: badgeText, borderRadius: 8, padding: '1px 5px', fontSize: 5 }}>{sk}</span>
                       ))}
                     </div>
                   : <div>Developer at Company<br />• Key achievement +30%</div>}
@@ -79,29 +90,34 @@ function DesignMiniPreview({ design }) {
           ))}
         </div>
       </div>
-    ),
-    'minimal-clean': (
-      <div style={{ fontFamily: 'DM Sans, sans-serif', padding: 12, background: '#fafafa', height: '100%', color: '#212121' }}>
+    );
+  }
+
+  // Minimal Clean variants
+  if (id.startsWith('minimal-clean')) {
+    const { accent, line, bg, text } = colors;
+    return (
+      <div style={{ fontFamily: 'DM Sans, sans-serif', padding: 12, background: bg, height: '100%', color: text }}>
         <div style={{ marginBottom: 10 }}>
           <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: -0.5 }}>John Doe</div>
-          <div style={{ fontSize: 6, color: '#757575', marginTop: 1 }}>john@email.com  •  Mumbai</div>
-          <hr style={{ margin: '6px 0', border: 'none', borderTop: '1px solid #e0e0e0' }} />
+          <div style={{ fontSize: 6, color: accent, marginTop: 1 }}>john@email.com  •  Mumbai</div>
+          <hr style={{ margin: '6px 0', border: 'none', borderTop: `1px solid ${line}` }} />
         </div>
         {['Experience', 'Education', 'Skills'].map(s => (
           <div key={s} style={{ marginBottom: 7 }}>
-            <div style={{ fontSize: 6, fontWeight: 700, color: '#212121', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 3 }}>{s}</div>
-            <div style={{ fontSize: 5, color: '#555', lineHeight: 1.6 }}>
+            <div style={{ fontSize: 6, fontWeight: 700, color: accent, textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 3 }}>{s}</div>
+            <div style={{ fontSize: 5, color: text, opacity: 0.7, lineHeight: 1.6 }}>
               {s === 'Skills'
                 ? 'Python • React • SQL • Leadership'
-                : <div>Position at Company<br /><span style={{ color: '#757575' }}>Jan 2022 – Present</span></div>}
+                : <div>Position at Company<br /><span style={{ color: accent }}>Jan 2022 – Present</span></div>}
             </div>
           </div>
         ))}
       </div>
-    )
-  };
+    );
+  }
 
-  return styles[design.id] || null;
+  return null;
 }
 
 export default function SelectDesign() {
@@ -110,15 +126,17 @@ export default function SelectDesign() {
   const [selected, setSelected] = useState(null);
   const [modalDesign, setModalDesign] = useState(null);
 
-  const handleContinue = () => {
-    if (!selected) return;
-    router.push(`/builder?type=${type}&design=${selected}`);
+  const handleSelect = (id) => {
+    setSelected(id);
+    router.push(`/builder?type=${type}&design=${id}`);
   };
 
   return (
     <>
       <Head>
-        <title>Choose Design — ResumeJet</title>
+        <title>Choose Resume Design — ResumeJet | 16 Templates</title>
+        <meta name="description" content="Pick from 16 professional resume templates — Classic, Modern, Creative, Minimal. 4 color variants each. All ATS-optimized for the Indian job market." />
+        <link rel="canonical" href="https://resumejet.in/select-design" />
       </Head>
       <Navbar showCTA={false} />
 
@@ -146,96 +164,99 @@ export default function SelectDesign() {
           </div>
         </div>
 
-        <div className="container" style={{ maxWidth: 900 }}>
+        <div className="container" style={{ maxWidth: 1000 }}>
           <div style={{ textAlign: 'center', marginBottom: 40 }}>
             <h1 style={{ fontSize: 28, fontWeight: 700, marginBottom: 8 }}>Pick your design</h1>
             <p style={{ color: '#B0B0D0', fontSize: 15 }}>
-              Click "Preview" to see a sample. You can change design between downloads (Pro plan).
+              16 templates across 4 styles — click any design to continue
             </p>
           </div>
 
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(190px, 1fr))',
-            gap: 20,
-            marginBottom: 32
-          }}>
-            {RESUME_DESIGNS.map((design) => (
-              <div
-                key={design.id}
-                onClick={() => setSelected(design.id)}
-                style={{
-                  background: '#1A1A3E',
-                  border: selected === design.id ? '2px solid #FFD700' : '2px solid #2A2A5A',
-                  borderRadius: 14,
-                  overflow: 'hidden',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s',
-                  boxShadow: selected === design.id ? '0 0 20px rgba(255,215,0,0.2)' : 'none'
-                }}
-              >
-                {/* Mini preview */}
-                <div style={{
-                  height: 160,
-                  overflow: 'hidden',
-                  background: design.colors.bg,
-                  position: 'relative'
-                }}>
-                  <DesignMiniPreview design={design} />
-                  {selected === design.id && (
-                    <div style={{
-                      position: 'absolute', top: 8, right: 8,
-                      background: '#FFD700', borderRadius: '50%',
-                      width: 22, height: 22, display: 'flex',
-                      alignItems: 'center', justifyContent: 'center',
-                      fontSize: 12, fontWeight: 700, color: '#000'
-                    }}>✓</div>
-                  )}
-                </div>
-
-                {/* Info */}
-                <div style={{ padding: '12px 14px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
-                    <span style={{ fontWeight: 700, fontSize: 13 }}>{design.name}</span>
-                    <span style={{
-                      fontSize: 9, fontWeight: 600, padding: '2px 7px',
-                      borderRadius: 10, background: design.tagColor + '22',
-                      color: design.tagColor, border: `1px solid ${design.tagColor}44`
-                    }}>{design.tag}</span>
-                  </div>
-                  <p style={{ color: '#B0B0D0', fontSize: 11, marginBottom: 10 }}>{design.description}</p>
-                  <button
-                    onClick={(e) => { e.stopPropagation(); setModalDesign(design); }}
-                    style={{
-                      background: 'transparent', border: '1px solid #2A2A5A',
-                      color: '#B0B0D0', borderRadius: 8, padding: '5px 12px',
-                      fontSize: 11, cursor: 'pointer', fontFamily: 'Poppins, sans-serif',
-                      width: '100%', transition: 'all 0.2s'
-                    }}
-                    onMouseEnter={e => { e.currentTarget.style.borderColor = '#FFD700'; e.currentTarget.style.color = '#FFD700'; }}
-                    onMouseLeave={e => { e.currentTarget.style.borderColor = '#2A2A5A'; e.currentTarget.style.color = '#B0B0D0'; }}
-                  >
-                    Preview This Design
-                  </button>
-                </div>
+          {/* Grouped by style */}
+          {RESUME_DESIGN_GROUPS.map((group) => (
+            <div key={group.style} style={{ marginBottom: 40 }}>
+              {/* Group header */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
+                <h2 style={{ fontSize: 16, fontWeight: 700, color: '#fff' }}>{group.label}</h2>
+                <span style={{ fontSize: 12, color: '#B0B0D0' }}>{group.description}</span>
+                <div style={{ flex: 1, height: 1, background: '#2A2A5A' }} />
               </div>
-            ))}
-          </div>
 
-          {/* Continue button */}
-          <div style={{ textAlign: 'center' }}>
-            <button
-              className="btn-primary"
-              onClick={handleContinue}
-              disabled={!selected}
-              style={{ fontSize: 16, padding: '14px 48px' }}
-            >
-              Continue →
-            </button>
-            {!selected && (
-              <p style={{ color: '#6B6B8D', fontSize: 12, marginTop: 8 }}>Select a design to continue</p>
-            )}
-          </div>
+              {/* 4 variant cards */}
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(4, 1fr)',
+                gap: 16
+              }}>
+                {group.variants.map((variant) => (
+                  <div
+                    key={variant.id}
+                    onClick={() => handleSelect(variant.id)}
+                    style={{
+                      background: '#1A1A3E',
+                      border: selected === variant.id ? '2px solid #FFD700' : '2px solid #2A2A5A',
+                      borderRadius: 14,
+                      overflow: 'hidden',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s',
+                      boxShadow: selected === variant.id ? '0 0 20px rgba(255,215,0,0.2)' : 'none'
+                    }}
+                    onMouseEnter={e => {
+                      if (selected !== variant.id) e.currentTarget.style.border = '2px solid #4A4A7A';
+                    }}
+                    onMouseLeave={e => {
+                      if (selected !== variant.id) e.currentTarget.style.border = '2px solid #2A2A5A';
+                    }}
+                  >
+                    {/* Mini preview */}
+                    <div style={{
+                      height: 140,
+                      overflow: 'hidden',
+                      background: variant.colors.bg || '#fff',
+                      position: 'relative'
+                    }}>
+                      <DesignMiniPreview id={variant.id} colors={variant.colors} />
+                      {selected === variant.id && (
+                        <div style={{
+                          position: 'absolute', top: 6, right: 6,
+                          background: '#FFD700', borderRadius: '50%',
+                          width: 20, height: 20, display: 'flex',
+                          alignItems: 'center', justifyContent: 'center',
+                          fontSize: 11, fontWeight: 700, color: '#000'
+                        }}>✓</div>
+                      )}
+                    </div>
+
+                    {/* Info */}
+                    <div style={{ padding: '10px 12px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
+                        <span style={{ fontWeight: 700, fontSize: 12 }}>{variant.name}</span>
+                        <span style={{
+                          fontSize: 8, fontWeight: 600, padding: '2px 6px',
+                          borderRadius: 10, background: variant.tagColor + '22',
+                          color: variant.tagColor, border: `1px solid ${variant.tagColor}44`
+                        }}>{variant.tag}</span>
+                      </div>
+                      <button
+                        onClick={(e) => { e.stopPropagation(); setModalDesign(variant); }}
+                        style={{
+                          background: 'transparent', border: '1px solid #2A2A5A',
+                          color: '#B0B0D0', borderRadius: 8, padding: '4px 10px',
+                          fontSize: 10, cursor: 'pointer', fontFamily: 'Poppins, sans-serif',
+                          width: '100%', transition: 'all 0.2s', marginTop: 4
+                        }}
+                        onMouseEnter={e => { e.currentTarget.style.borderColor = '#FFD700'; e.currentTarget.style.color = '#FFD700'; }}
+                        onMouseLeave={e => { e.currentTarget.style.borderColor = '#2A2A5A'; e.currentTarget.style.color = '#B0B0D0'; }}
+                      >
+                        Preview
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+
         </div>
       </div>
 
@@ -254,7 +275,7 @@ export default function SelectDesign() {
             onClick={e => e.stopPropagation()}
             style={{
               background: '#1A1A3E', borderRadius: 16, padding: 24,
-              maxWidth: 500, width: '100%', maxHeight: '85vh', overflow: 'auto'
+              maxWidth: 460, width: '100%', maxHeight: '85vh', overflow: 'auto'
             }}
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
@@ -274,12 +295,12 @@ export default function SelectDesign() {
 
             {/* Large preview */}
             <div style={{
-              height: 400, background: modalDesign.colors.bg,
+              height: 360, background: modalDesign.colors.bg || '#fff',
               borderRadius: 10, overflow: 'hidden',
               border: '1px solid #2A2A5A'
             }}>
               <div style={{ transform: 'scale(2.2)', transformOrigin: 'top left', width: '45%', height: '45%' }}>
-                <DesignMiniPreview design={modalDesign} />
+                <DesignMiniPreview id={modalDesign.id} colors={modalDesign.colors} />
               </div>
             </div>
 
@@ -287,9 +308,9 @@ export default function SelectDesign() {
               <button
                 className="btn-primary"
                 style={{ flex: 1, justifyContent: 'center' }}
-                onClick={() => { setSelected(modalDesign.id); setModalDesign(null); }}
+                onClick={() => { setModalDesign(null); handleSelect(modalDesign.id); }}
               >
-                Select This Design
+                Select & Continue →
               </button>
               <button
                 className="btn-secondary"

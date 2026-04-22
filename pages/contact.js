@@ -7,7 +7,9 @@ export default function Contact() {
   return (
     <>
       <Head>
-        <title>Contact Us — ResumeAI</title>
+        <title>Contact Us — ResumeJet</title>
+        <meta name="description" content="Get in touch with ResumeJet support. We typically respond within 24 hours. Reach us for billing, technical issues, or resume help." />
+        <link rel="canonical" href="https://resumejet.in/contact" />
       </Head>
 
       {/* NAVBAR */}
@@ -73,7 +75,7 @@ export default function Contact() {
           </h2>
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             {[
-              ['Business Name', 'ResumeAI'],
+              ['Business Name', 'ResumeJet'],
               ['Owner', 'Sagar Ahir'],
               ['Email', 'sagardhrangu05@gmail.com'],
               ['City', 'Surat'],
@@ -113,7 +115,7 @@ export default function Contact() {
 
       {/* FOOTER */}
       <footer className="footer">
-        <p>© 2026 ResumeAI. All rights reserved.</p>
+        <p>© 2026 ResumeJet. All rights reserved.</p>
         <div style={{ display: 'flex', gap: 20, justifyContent: 'center', flexWrap: 'wrap', marginTop: 12 }}>
           <a href="/terms" style={{ color: '#B0B0D0', fontSize: 13 }}>Terms & Conditions</a>
           <a href="/privacy" style={{ color: '#B0B0D0', fontSize: 13 }}>Privacy Policy</a>
