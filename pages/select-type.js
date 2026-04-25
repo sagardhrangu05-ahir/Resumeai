@@ -61,6 +61,7 @@ export default function SelectType() {
             {RESUME_TYPES.map((type) => (
               <button
                 key={type.slug}
+                type="button"
                 onClick={() => handleSelect(type.slug)}
                 style={{
                   background: '#1A1A3E',
@@ -95,14 +96,14 @@ export default function SelectType() {
                     <span key={f} style={{
                       background: '#0A0A1A', border: '1px solid #2A2A5A',
                       borderRadius: 20, padding: '2px 10px',
-                      fontSize: 11, color: '#6B6B8D', textTransform: 'capitalize'
+                      fontSize: 11, color: '#8080A0', textTransform: 'capitalize'
                     }}>{f}</span>
                   ))}
                   {type.fields.length > 4 && (
                     <span style={{
                       background: '#0A0A1A', border: '1px solid #2A2A5A',
                       borderRadius: 20, padding: '2px 10px',
-                      fontSize: 11, color: '#6B6B8D'
+                      fontSize: 11, color: '#8080A0'
                     }}>+{type.fields.length - 4} more</span>
                   )}
                 </div>

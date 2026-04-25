@@ -34,7 +34,7 @@ export default function Shipping() {
         <h1 style={{ fontSize: 36, fontWeight: 800, color: '#FFD700', marginBottom: 8 }}>
           Shipping Policy
         </h1>
-        <p style={{ color: '#6B6B8D', marginBottom: 40 }}>Last updated: April 2026</p>
+        <p style={{ color: '#8080A0', marginBottom: 40 }}>Last updated: April 2026</p>
 
         {/* Highlight Box */}
         <div style={{

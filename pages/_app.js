@@ -2,6 +2,7 @@ import '../styles/globals.css';
 import Head from 'next/head';
 import Script from 'next/script';
 import { ToastProvider } from '../components/Toast';
+import ErrorBoundary from '../components/ErrorBoundary';
 
 const GA_ID = process.env.NEXT_PUBLIC_GA_ID || '';
 
@@ -53,7 +54,9 @@ export default function App({ Component, pageProps }) {
         </>
       )}
 
-      <Component {...pageProps} />
+      <ErrorBoundary>
+        <Component {...pageProps} />
+      </ErrorBoundary>
     </ToastProvider>
   );
 }

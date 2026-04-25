@@ -1,17 +1,13 @@
 import { generatePDF } from '../../lib/pdf-generator';
-import { reserveDownload } from '../../lib/store';
+import { reserveDownload, rollbackDownload, getResumeOwner } from '../../lib/store';
+import { RESUME_DESIGNS } from '../../config/resumeDesigns';
 const crypto = require('crypto');
 
 export const config = {
   api: { bodyParser: { sizeLimit: '5mb' } }
 };
 
-const VALID_DESIGNS = [
-  'classic-pro', 'classic-pro-navy', 'classic-pro-green', 'classic-pro-maroon',
-  'modern-split', 'modern-split-purple', 'modern-split-teal', 'modern-split-orange',
-  'creative-edge', 'creative-edge-rose', 'creative-edge-teal', 'creative-edge-dark',
-  'minimal-clean', 'minimal-clean-blue', 'minimal-clean-green', 'minimal-clean-gold'
-];
+const VALID_DESIGNS = RESUME_DESIGNS.map(d => d.id);
 
 // Decode and verify the signed token issued by verify-payment.js
 // Token format: base64(payload).hmac
@@ -66,7 +62,20 @@ export default async function handler(req, res) {
       return res.status(403).json({ error: 'Payment verification required. Please complete payment first.' });
     }
 
-    const { paymentId, downloadsAllowed } = tokenData;
+    const { paymentId, downloadsAllowed, orderId } = tokenData;
+
+    // Verify the resume name matches the one originally generated for this orderId.
+    // Prevents a paid token from being reused to download a different person's resume.
+    const expectedName = getResumeOwner(orderId);
+    if (expectedName !== null) {
+      const submittedName = String(resume.name || '').trim().toLowerCase();
+      if (submittedName !== expectedName) {
+        console.warn(`⚠️ Name mismatch: expected="${expectedName}", got="${submittedName}", orderId=${orderId}`);
+        return res.status(403).json({
+          error: 'This payment is linked to a different resume. Please use your original generated resume.'
+        });
+      }
+    }
 
     // Atomically check + reserve before the async PDF generation so two concurrent
     // requests cannot both pass the limit check before either writes.
@@ -95,6 +104,12 @@ export default async function handler(req, res) {
 
     return res.send(pdfBuffer);
   } catch (error) {
+    try {
+      const tokenData = verifyAndDecodeToken(req.body?.downloadToken);
+      if (tokenData?.paymentId) {
+        rollbackDownload(tokenData.paymentId);
+      }
+    } catch {}
     console.error('PDF generation error:', error);
     return res.status(500).json({ error: 'PDF generation failed' });
   }

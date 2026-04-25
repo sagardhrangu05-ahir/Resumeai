@@ -45,6 +45,37 @@ export default async function handler(req, res) {
     return res.status(429).json({ error: 'Too many requests. Please wait.' });
   }
 
+  // JSON body path — called from preview page with already-generated resume object
+  const contentType = req.headers['content-type'] || '';
+  if (contentType.includes('application/json')) {
+    try {
+      const rawBody = await new Promise((resolve, reject) => {
+        const chunks = [];
+        req.on('data', c => chunks.push(c));
+        req.on('end', () => resolve(Buffer.concat(chunks).toString('utf8')));
+        req.on('error', reject);
+      });
+      const { resume, targetRole = '' } = JSON.parse(rawBody);
+      if (!resume || typeof resume !== 'object') return res.status(400).json({ error: 'Invalid resume data' });
+      const text = [
+        resume.name,
+        resume.summary,
+        ...(resume.experience || []).flatMap(e => [e.title, e.company, ...(e.bullets || [])]),
+        ...(resume.skills?.technical || []),
+        ...(resume.skills?.soft || []),
+        ...(resume.projects || []).map(p => p.name + ' ' + p.description),
+        ...(resume.education || []).map(e => e.degree + ' ' + e.institution),
+        ...(resume.certifications || []),
+        ...(resume.achievements || []),
+      ].filter(Boolean).join('\n');
+      const analysis = await analyzeResume(text, targetRole);
+      return res.status(200).json({ success: true, analysis });
+    } catch (err) {
+      console.error('Analyze (JSON) error:', err);
+      return res.status(500).json({ error: 'Analysis failed.' });
+    }
+  }
+
   try {
     const parts     = await parseMultipart(req);
     const file      = parts.resume;

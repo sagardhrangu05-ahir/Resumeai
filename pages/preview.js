@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
+import Script from 'next/script';
 import { useToast } from '../components/Toast';
 import Navbar from '../components/Navbar';
 import { PLANS } from '../config/pricing';
@@ -10,44 +11,42 @@ import { getCredits, setCredits, useCredit, clearCredits, getSession } from '../
 export default function Preview() {
   const router = useRouter();
   const toast  = useToast();
+  const PAYMENT_RECOVERY_KEY = 'resumejet_pending_payment';
 
   const [resume,        setResume       ] = useState(null);
   const [orderId,       setOrderId      ] = useState('');
   const [profilePhoto,  setProfilePhoto ] = useState(null);
   const [selectedDesign, setSelectedDesign] = useState('classic-pro');
 
-  // Credits state
-  const [credits,       setCreditsState ] = useState(null);  // { credits, plan, ... }
+  const [credits,       setCreditsState ] = useState(null);
   const [downloading,   setDownloading  ] = useState(false);
   const [downloadDesign, setDownloadDesign] = useState('classic-pro');
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     let data   = sessionStorage.getItem('resumeData');
     let oid    = sessionStorage.getItem('orderId');
     let photo  = sessionStorage.getItem('profilePhoto');
     let design = sessionStorage.getItem('selectedDesign');
 
-    // If sessionStorage was cleared (tab closed), restore from localStorage backup
     if (!data) {
-      const existing = getCredits();
-      if (existing && existing.creditsDisplay > 0) {
-        const saved = getSession();
-        if (saved?.resumeData) {
-          data   = saved.resumeData;
-          oid    = saved.orderId    || '';
-          photo  = saved.profilePhoto || null;
-          design = saved.selectedDesign || 'classic-pro';
-          // Restore into sessionStorage for this session
-          sessionStorage.setItem('resumeData', data);
-          if (oid)   sessionStorage.setItem('orderId', oid);
-          if (photo) sessionStorage.setItem('profilePhoto', photo);
-          if (design) sessionStorage.setItem('selectedDesign', design);
-        }
+      const saved = getSession();
+      if (saved?.resumeData) {
+        data   = saved.resumeData;
+        oid    = saved.orderId || '';
+        photo  = saved.profilePhoto || null;
+        design = saved.selectedDesign || 'classic-pro';
+        sessionStorage.setItem('resumeData', data);
+        if (oid) sessionStorage.setItem('orderId', oid);
+        if (photo) sessionStorage.setItem('profilePhoto', photo);
+        if (design) sessionStorage.setItem('selectedDesign', design);
       }
     }
 
-    if (!data) { void router.push('/select-type'); return; }
+    if (!data) {
+      void router.push('/select-type');
+      return;
+    }
+
     try {
       setResume(JSON.parse(data));
       setOrderId(oid || '');
@@ -57,12 +56,47 @@ export default function Preview() {
     } catch {
       router.push('/select-type');
     }
-    // Check existing credits
+
     const existing = getCredits();
     if (existing) setCreditsState(existing);
-  }, []);
+  }, [router]);
 
-  // ===== RAZORPAY PAYMENT =====
+  useEffect(() => {
+    const recoverPayment = async () => {
+      if (typeof window === 'undefined') return;
+      if (getCredits()) return;
+
+      const raw = localStorage.getItem(PAYMENT_RECOVERY_KEY);
+      if (!raw) return;
+
+      try {
+        const pending = JSON.parse(raw);
+        const verifyRes = await fetch('/api/verify-payment', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(pending)
+        });
+        const verifyResult = await verifyRes.json();
+        if (!verifyResult.success) return;
+
+        const credData = setCredits({
+          plan:             verifyResult.plan,
+          downloadToken:    verifyResult.downloadToken,
+          paymentId:        verifyResult.paymentId,
+          razorpayOrderId:  verifyResult.razorpayOrderId,
+          downloadsAllowed: verifyResult.downloadsAllowed,
+        });
+        setCreditsState(credData);
+        localStorage.removeItem(PAYMENT_RECOVERY_KEY);
+        toast(`Payment restored. You have ${credData.creditsDisplay} downloads.`, 'success');
+      } catch (err) {
+        console.error('Payment recovery error:', err);
+      }
+    };
+
+    recoverPayment();
+  }, [toast]);
+
   const handlePayment = async (plan) => {
     try {
       const res = await fetch('/api/create-order', {
@@ -86,30 +120,39 @@ export default function Preview() {
           : 'Basic Plan — 2 Resume Downloads',
         order_id: order.razorpayOrderId,
         handler: async function (response) {
-          const verifyRes = await fetch('/api/verify-payment', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              razorpay_order_id:   response.razorpay_order_id,
-              razorpay_payment_id: response.razorpay_payment_id,
-              razorpay_signature:  response.razorpay_signature,
-              orderId,
-              plan: plan.id
-            })
-          });
-          const verifyResult = await verifyRes.json();
-          if (verifyResult.success) {
-            const credData = setCredits({
-              plan:             plan.id,
-              downloadToken:    verifyResult.downloadToken,
-              paymentId:        verifyResult.paymentId,
-              razorpayOrderId:  verifyResult.razorpayOrderId,
-              downloadsAllowed: verifyResult.downloadsAllowed,
+          const verificationPayload = {
+            razorpay_order_id:   response.razorpay_order_id,
+            razorpay_payment_id: response.razorpay_payment_id,
+            razorpay_signature:  response.razorpay_signature,
+            orderId,
+            plan: plan.id
+          };
+          localStorage.setItem(PAYMENT_RECOVERY_KEY, JSON.stringify(verificationPayload));
+
+          try {
+            const verifyRes = await fetch('/api/verify-payment', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(verificationPayload)
             });
-            setCreditsState(credData);
-            toast(`Payment successful! You have ${credData.creditsDisplay} downloads.`, 'success');
-          } else {
-            toast('Payment verification failed. Contact support.', 'error');
+            const verifyResult = await verifyRes.json();
+            if (verifyResult.success) {
+              const credData = setCredits({
+                plan:             plan.id,
+                downloadToken:    verifyResult.downloadToken,
+                paymentId:        verifyResult.paymentId,
+                razorpayOrderId:  verifyResult.razorpayOrderId,
+                downloadsAllowed: verifyResult.downloadsAllowed,
+              });
+              setCreditsState(credData);
+              localStorage.removeItem(PAYMENT_RECOVERY_KEY);
+              toast(`Payment successful! You have ${credData.creditsDisplay} downloads.`, 'success');
+            } else {
+              toast(verifyResult.error || 'Payment verification failed. Refresh this page and try again.', 'error');
+            }
+          } catch (err) {
+            console.error('Payment verification error:', err);
+            toast('Payment captured, but verification failed. Refresh this page and try again.', 'error');
           }
         },
         prefill: {
@@ -121,6 +164,11 @@ export default function Preview() {
         modal: { ondismiss: () => {} }
       };
 
+      if (!window.Razorpay) {
+        toast('Payment is loading, please try again in a moment.', 'error');
+        return;
+      }
+
       const rzp = new window.Razorpay(options);
       rzp.open();
     } catch (err) {
@@ -129,7 +177,6 @@ export default function Preview() {
     }
   };
 
-  // ===== DOWNLOAD PDF =====
   const handleDownload = async () => {
     const current = getCredits();
     if (!current || current.creditsDisplay <= 0) {
@@ -155,23 +202,27 @@ export default function Preview() {
 
       if (res.ok) {
         const blob = await res.blob();
-        // Deduct credit only after blob is fully received
         const updated = useCredit();
         setCreditsState(updated ? { ...updated } : null);
 
-        const url  = window.URL.createObjectURL(blob);
-        const a    = document.createElement('a');
-        a.href     = url;
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
         a.download = `${(resume?.name || 'resume').replace(/\s+/g, '_')}_${downloadDesign}_Resume.pdf`;
         document.body.appendChild(a);
         a.click();
         a.remove();
-        window.URL.revokeObjectURL(url);
+        window.setTimeout(() => window.URL.revokeObjectURL(url), 1500);
         toast('Resume downloaded!', 'success');
       } else {
-        toast('Download failed. Please try again.', 'error');
+        let errMsg = 'Download failed. Please try again.';
+        try {
+          const errData = await res.json();
+          if (errData.error) errMsg = errData.error;
+        } catch {}
+        toast(errMsg, 'error');
       }
-    } catch (err) {
+    } catch {
       toast('Download error. Please try again.', 'error');
     } finally {
       setDownloading(false);
@@ -188,10 +239,9 @@ export default function Preview() {
   }
 
   const creditsLeft = credits?.creditsDisplay ?? 0;
-  const wasPaid     = credits !== null;
-  const isPaid      = creditsLeft > 0;
+  const wasPaid = credits !== null;
+  const isPaid = creditsLeft > 0;
 
-  // ===== PAID / CREDITS VIEW =====
   if (isPaid) {
     const designObj = RESUME_DESIGNS.find(d => d.id === downloadDesign);
     return (
@@ -206,7 +256,6 @@ export default function Preview() {
               You have <strong style={{ color: '#FFD700' }}>{creditsLeft} download{creditsLeft !== 1 ? 's' : ''}</strong> remaining
             </p>
 
-            {/* Design selector for Pro */}
             {credits?.plan === 'pro' && (
               <div style={{ marginBottom: 24 }}>
                 <p style={{ color: '#B0B0D0', fontSize: 13, marginBottom: 12 }}>
@@ -216,14 +265,19 @@ export default function Preview() {
                   {RESUME_DESIGNS.map(d => (
                     <button
                       key={d.id}
+                      type="button"
                       onClick={() => setDownloadDesign(d.id)}
                       style={{
-                        background:  downloadDesign === d.id ? '#FFD700' : '#1A1A3E',
-                        color:       downloadDesign === d.id ? '#000' : '#B0B0D0',
-                        border:      downloadDesign === d.id ? '2px solid #FFD700' : '2px solid #2A2A5A',
-                        borderRadius: 10, padding: '8px 16px',
-                        cursor: 'pointer', fontSize: 12, fontWeight: 600,
-                        fontFamily: 'Poppins, sans-serif', transition: 'all 0.2s'
+                        background: downloadDesign === d.id ? '#FFD700' : '#1A1A3E',
+                        color: downloadDesign === d.id ? '#000' : '#B0B0D0',
+                        border: downloadDesign === d.id ? '2px solid #FFD700' : '2px solid #2A2A5A',
+                        borderRadius: 10,
+                        padding: '8px 16px',
+                        cursor: 'pointer',
+                        fontSize: 12,
+                        fontWeight: 600,
+                        fontFamily: 'Poppins, sans-serif',
+                        transition: 'all 0.2s'
                       }}
                     >
                       {d.name}
@@ -231,16 +285,21 @@ export default function Preview() {
                   ))}
                 </div>
                 {designObj && (
-                  <p style={{ color: '#6B6B8D', fontSize: 11, marginTop: 8 }}>
+                  <p style={{ color: '#8080A0', fontSize: 11, marginTop: 8 }}>
                     Selected: {designObj.name} — {designObj.description}
                   </p>
                 )}
               </div>
             )}
 
-            <button className="btn-primary" onClick={handleDownload}
+            <button
+              type="button"
+              className="btn-primary"
+              onClick={handleDownload}
               disabled={downloading || creditsLeft === 0}
-              style={{ fontSize: 18, padding: '16px 48px' }}>
+              style={{ fontSize: 18, padding: '16px 48px' }}
+              aria-label={downloading ? 'Generating PDF' : `Download ${designObj?.name || 'Classic Pro'} PDF`}
+            >
               {downloading ? '⏳ Generating PDF...' : `📥 Download — ${downloadDesign === 'classic-pro' ? 'Classic Pro' : designObj?.name}`}
             </button>
 
@@ -253,10 +312,10 @@ export default function Preview() {
             </div>
 
             <div style={{ display: 'flex', gap: 12, marginTop: 24, justifyContent: 'center', flexWrap: 'wrap' }}>
-              <button className="btn-secondary" onClick={() => router.push('/select-type')}>
+              <button type="button" className="btn-secondary" aria-label="Build another resume" onClick={() => router.push('/select-type')}>
                 ← Build Another Resume
               </button>
-              <button className="btn-secondary" onClick={() => router.push('/')}>
+              <button type="button" className="btn-secondary" onClick={() => router.push('/')}>
                 Home
               </button>
             </div>
@@ -266,7 +325,6 @@ export default function Preview() {
     );
   }
 
-  // ===== ALL CREDITS USED VIEW =====
   if (wasPaid && creditsLeft === 0) {
     return (
       <>
@@ -279,14 +337,14 @@ export default function Preview() {
             <p style={{ color: '#B0B0D0', marginBottom: 24 }}>
               You have used all your downloads from this purchase.
             </p>
-            <p style={{ color: '#6B6B8D', fontSize: 13, marginBottom: 32 }}>
+            <p style={{ color: '#8080A0', fontSize: 13, marginBottom: 32 }}>
               Need more downloads? Purchase a new plan below.
             </p>
             <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
-              <button className="btn-secondary" onClick={() => router.push('/select-type')}>
+              <button type="button" className="btn-secondary" aria-label="Build another resume" onClick={() => router.push('/select-type')}>
                 ← Build Another Resume
               </button>
-              <button className="btn-primary" onClick={() => {
+              <button type="button" className="btn-primary" onClick={() => {
                 clearCredits();
                 setCreditsState(null);
               }}>
@@ -299,15 +357,14 @@ export default function Preview() {
     );
   }
 
-  // ===== PREVIEW VIEW (unpaid) =====
   return (
     <>
       <Head>
         <title>Resume Preview — ResumeJet</title>
         <meta name="description" content="Preview your AI-generated resume before downloading. Pay once to get your professional PDF without watermarks." />
         <link rel="canonical" href="https://resumejet.in/preview" />
-        <script src="https://checkout.razorpay.com/v1/checkout.js" async></script>
       </Head>
+      <Script src="https://checkout.razorpay.com/v1/checkout.js" strategy="afterInteractive" />
 
       <Navbar showCTA={false} />
       <div className="preview-page" style={{ paddingBottom: 180, paddingTop: 80 }}>
@@ -317,8 +374,13 @@ export default function Preview() {
           </p>
         </div>
 
-        {/* Resume Preview */}
-        <div className="resume-preview">
+        <div
+          className="resume-preview"
+          onContextMenu={(e) => e.preventDefault()}
+          onCopy={(e) => e.preventDefault()}
+          onCut={(e) => e.preventDefault()}
+          style={{ userSelect: 'none', WebkitUserSelect: 'none' }}
+        >
           <div className="watermark">PREVIEW • RESUMEJET</div>
           <div className="resume-content">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 }}>
@@ -326,9 +388,11 @@ export default function Preview() {
                 <h1>{resume.name || 'Your Name'}</h1>
               </div>
               {profilePhoto && (
-                <img src={profilePhoto} alt="Profile"
-                  style={{ width: 72, height: 72, borderRadius: '50%', objectFit: 'cover',
-                           border: '2px solid #FFD700', flexShrink: 0 }} />
+                <img
+                  src={profilePhoto}
+                  alt="Profile"
+                  style={{ width: 72, height: 72, borderRadius: '50%', objectFit: 'cover', border: '2px solid #FFD700', flexShrink: 0 }}
+                />
               )}
             </div>
             <div className="resume-contact">
@@ -407,7 +471,7 @@ export default function Preview() {
                 <ul className="skills-list">
                   {[
                     ...(resume.skills.technical || []),
-                    ...(resume.skills.soft      || [])
+                    ...(resume.skills.soft || [])
                   ].map((skill, i) => <li key={i}>{skill}</li>)}
                 </ul>
               </div>
@@ -440,56 +504,55 @@ export default function Preview() {
         </div>
 
         <div style={{ textAlign: 'center', marginTop: 16 }}>
-          <button className="btn-secondary" onClick={() => router.back()}
-            style={{ fontSize: 13, padding: '10px 24px' }}>
+          <button type="button" className="btn-secondary" aria-label="Edit and regenerate resume" onClick={() => router.back()} style={{ fontSize: 13, padding: '10px 24px' }}>
             ← Edit & Regenerate
           </button>
         </div>
       </div>
 
-      {/* ===== PAYMENT BAR — 2 options ===== */}
-      <div style={{
-        position: 'fixed', bottom: 0, left: 0, right: 0,
-        background: 'rgba(10, 10, 26, 0.95)',
-        backdropFilter: 'blur(20px)',
-        WebkitBackdropFilter: 'blur(20px)',
-        borderTop: '1px solid rgba(255,215,0,0.2)',
-        boxShadow: '0 -8px 32px rgba(0,0,0,0.5)',
-        padding: '16px 20px',
-        zIndex: 100
-      }}>
-        <div style={{
-          maxWidth: 700, margin: '0 auto',
-          display: 'flex', gap: 12, alignItems: 'center',
-          justifyContent: 'center', flexWrap: 'wrap'
-        }}>
-          {/* Basic */}
+      <div
+        style={{
+          position: 'fixed',
+          bottom: 0,
+          left: 0,
+          right: 0,
+          background: 'rgba(10, 10, 26, 0.95)',
+          backdropFilter: 'blur(20px)',
+          WebkitBackdropFilter: 'blur(20px)',
+          borderTop: '1px solid rgba(255,215,0,0.2)',
+          boxShadow: '0 -8px 32px rgba(0,0,0,0.5)',
+          padding: '16px 20px',
+          zIndex: 100
+        }}
+      >
+        <div
+          style={{
+            maxWidth: 700,
+            margin: '0 auto',
+            display: 'flex',
+            gap: 12,
+            alignItems: 'center',
+            justifyContent: 'center',
+            flexWrap: 'wrap'
+          }}
+        >
           <div style={{ textAlign: 'center' }}>
-            <div style={{ color: '#6B6B8D', fontSize: 10, marginBottom: 4 }}>BASIC</div>
-            <button
-              className="btn-secondary"
-              onClick={() => handlePayment(PLANS[0])}
-              style={{ padding: '12px 28px', fontSize: 14 }}
-            >
+            <div style={{ color: '#8080A0', fontSize: 10, marginBottom: 4 }}>BASIC</div>
+            <button type="button" className="btn-secondary" aria-label="Buy Basic plan — ₹49 for 2 downloads" onClick={() => handlePayment(PLANS[0])} style={{ padding: '12px 28px', fontSize: 14 }}>
               💳 ₹49 — 2 Downloads
             </button>
           </div>
 
           <div style={{ color: '#2A2A5A', fontSize: 20, fontWeight: 300 }}>|</div>
 
-          {/* Pro */}
           <div style={{ textAlign: 'center' }}>
             <div style={{ color: '#FFD700', fontSize: 10, marginBottom: 4, fontWeight: 700 }}>BEST VALUE</div>
-            <button
-              className="btn-primary"
-              onClick={() => handlePayment(PLANS[1])}
-              style={{ padding: '12px 28px', fontSize: 14, justifyContent: 'center' }}
-            >
+            <button type="button" className="btn-primary" aria-label="Buy Pro plan — ₹79 for 4 downloads" onClick={() => handlePayment(PLANS[1])} style={{ padding: '12px 28px', fontSize: 14, justifyContent: 'center' }}>
               🚀 ₹79 — 4 Downloads + All Designs
             </button>
           </div>
         </div>
-        <p style={{ textAlign: 'center', color: '#6B6B8D', fontSize: 11, marginTop: 8 }}>
+        <p style={{ textAlign: 'center', color: '#8080A0', fontSize: 11, marginTop: 8 }}>
           UPI • Card • Net Banking • Credits valid 7 days
         </p>
       </div>

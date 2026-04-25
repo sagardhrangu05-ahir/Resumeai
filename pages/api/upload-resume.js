@@ -1,5 +1,6 @@
 import { generateResume, generateResumeFromImage } from '../../lib/claude';
 import { rateLimit } from '../../lib/rate-limit';
+import { setResumeOwner } from '../../lib/store';
 const { v4: uuidv4 } = require('uuid');
 const fs = require('fs');
 const path = require('path');
@@ -176,6 +177,9 @@ export default async function handler(req, res) {
         instruction: "This is extracted text from the user's old resume. Restructure and enhance it into a professional resume."
       }, resumeType);
     }
+
+    // Bind this orderId to the generated person's name so downloads can be verified
+    setResumeOwner(orderId, resume.name);
 
     return res.status(200).json({ success: true, resume, orderId });
 

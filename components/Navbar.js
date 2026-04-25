@@ -18,6 +18,7 @@ export default function Navbar({ showCTA = true, onHowItWorksClick }) {
         <div className={`navbar-links ${menuOpen ? 'open' : ''}`}>
           {onHowItWorksClick && (
             <button
+              type="button"
               className="nav-link"
               onClick={() => { onHowItWorksClick(); closeMenu(); }}
             >
@@ -32,7 +33,9 @@ export default function Navbar({ showCTA = true, onHowItWorksClick }) {
           </a>
           {showCTA && (
             <button
+              type="button"
               className="btn-primary nav-cta"
+              aria-label="Start free preview"
               onClick={() => { router.push('/select-type'); closeMenu(); }}
             >
               Start Free Preview →
@@ -41,6 +44,7 @@ export default function Navbar({ showCTA = true, onHowItWorksClick }) {
         </div>
 
         <button
+          type="button"
           className="nav-hamburger"
           onClick={() => setMenuOpen(!menuOpen)}
           aria-label="Toggle navigation menu"

@@ -114,28 +114,63 @@ export const RESUME_DESIGN_GROUPS = [
         name: "Pure Gray",
         tag: "Clean & Simple",
         tagColor: "#B0B0D0",
-        colors: { accent: "#757575", line: "#e0e0e0", bg: "#fafafa", text: "#212121" }
+        colors: { primary: "#1a1a1a", accent: "#555555", line: "#e0e0e0", bg: "#fafafa" }
       },
       {
         id: "minimal-clean-blue",
         name: "Sky Blue",
         tag: "Crisp",
         tagColor: "#90CAF9",
-        colors: { accent: "#1565C0", line: "#BBDEFB", bg: "#F8FBFF", text: "#0D1B2A" }
+        colors: { primary: "#0a2540", accent: "#1565C0", line: "#BBDEFB", bg: "#F8FBFF" }
       },
       {
         id: "minimal-clean-green",
         name: "Sage Green",
         tag: "Natural",
         tagColor: "#A5D6A7",
-        colors: { accent: "#2E7D32", line: "#C8E6C9", bg: "#F5FFF5", text: "#1B2E1B" }
+        colors: { primary: "#1B2E1B", accent: "#2E7D32", line: "#C8E6C9", bg: "#F5FFF5" }
       },
       {
         id: "minimal-clean-gold",
         name: "Warm Gold",
         tag: "Premium",
         tagColor: "#FFD54F",
-        colors: { accent: "#8B6914", line: "#F0DCA0", bg: "#FFFDF5", text: "#2C1F00" }
+        colors: { primary: "#2C1F00", accent: "#8B6914", line: "#F0DCA0", bg: "#FFFDF5" }
+      }
+    ]
+  },
+  {
+    style: "executive-pro",
+    label: "Executive Pro",
+    description: "Playfair serif, timeline layout, gold accents",
+    variants: [
+      {
+        id: "executive-pro",
+        name: "Navy Gold",
+        tag: "Premium",
+        tagColor: "#f6ad3c",
+        colors: { sidebar1: "#1e3a5f", sidebar2: "#2c5282", accent: "#f6ad3c", accentDark: "#ed8936" }
+      },
+      {
+        id: "executive-pro-green",
+        name: "Forest Gold",
+        tag: "Fresh",
+        tagColor: "#52b788",
+        colors: { sidebar1: "#1a3d2b", sidebar2: "#2d6a4f", accent: "#f6ad3c", accentDark: "#52b788" }
+      },
+      {
+        id: "executive-pro-charcoal",
+        name: "Charcoal Gold",
+        tag: "Bold",
+        tagColor: "#CBD5E0",
+        colors: { sidebar1: "#2d3748", sidebar2: "#4a5568", accent: "#f6ad3c", accentDark: "#e2b96f" }
+      },
+      {
+        id: "executive-pro-burgundy",
+        name: "Burgundy Gold",
+        tag: "Luxe",
+        tagColor: "#f48fb1",
+        colors: { sidebar1: "#4a0e2c", sidebar2: "#7b1d46", accent: "#f6ad3c", accentDark: "#f48fb1" }
       }
     ]
   }

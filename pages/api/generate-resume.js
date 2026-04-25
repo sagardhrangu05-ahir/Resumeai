@@ -1,5 +1,6 @@
 import { generateResume } from '../../lib/claude';
 import { rateLimit } from '../../lib/rate-limit';
+import { setResumeOwner } from '../../lib/store';
 const { v4: uuidv4 } = require('uuid');
 
 export const config = {
@@ -52,6 +53,9 @@ export default async function handler(req, res) {
 
     const orderId = uuidv4();
     const resume = await generateResume(sanitizeData(data), resumeType);
+
+    // Bind this orderId to the generated person's name so downloads can be verified
+    setResumeOwner(orderId, resume.name);
 
     return res.status(200).json({ success: true, resume, orderId });
   } catch (error) {

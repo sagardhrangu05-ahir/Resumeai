@@ -51,7 +51,7 @@ export default function Contact() {
               borderRadius: 16, padding: 24, textAlign: 'center'
             }}>
               <div style={{ fontSize: 36, marginBottom: 12 }}>{item.icon}</div>
-              <p style={{ color: '#6B6B8D', fontSize: 12, fontWeight: 600, marginBottom: 6, textTransform: 'uppercase', letterSpacing: 1 }}>
+              <p style={{ color: '#8080A0', fontSize: 12, fontWeight: 600, marginBottom: 6, textTransform: 'uppercase', letterSpacing: 1 }}>
                 {item.label}
               </p>
               {item.link ? (
@@ -85,7 +85,7 @@ export default function Contact() {
               ['Platform', 'resumejet.in']
             ].map(([key, val], i) => (
               <tr key={i} style={{ borderBottom: '1px solid #2A2A5A' }}>
-                <td style={{ padding: '12px 0', color: '#6B6B8D', fontSize: 14, width: '40%', fontWeight: 600 }}>{key}</td>
+                <td style={{ padding: '12px 0', color: '#8080A0', fontSize: 14, width: '40%', fontWeight: 600 }}>{key}</td>
                 <td style={{ padding: '12px 0', color: '#fff', fontSize: 14 }}>{val}</td>
               </tr>
             ))}

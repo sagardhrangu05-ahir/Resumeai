@@ -5,6 +5,7 @@ import { FileText, Upload, User, Briefcase, GraduationCap, Wrench, FolderOpen, A
 import Navbar from '../components/Navbar';
 import { useToast } from '../components/Toast';
 import { RESUME_TYPES } from '../config/resumeTypes';
+import { saveSession } from '../lib/credits';
 
 const emptyExp     = { title: '', company: '', duration: '', description: '' };
 const emptyEdu     = { degree: '', institution: '', year: '', score: '' };
@@ -15,7 +16,7 @@ const defaultEdu   = [
 const emptyProject = { name: '', description: '', tech_used: '' };
 const emptyIntern  = { role: '', company: '', duration: '', description: '' };
 
-const ACCEPTED_RESUME_TYPES = '.pdf,.doc,.docx,.jpg,.jpeg,.png';
+const ACCEPTED_RESUME_TYPES = '.pdf,.doc,.docx,.jpg,.jpeg,.png,.webp';
 const ACCEPTED_PHOTO_TYPES  = 'image/jpeg,image/png,image/webp';
 const MAX_FILE_SIZE          = 10 * 1024 * 1024;
 
@@ -157,6 +158,13 @@ export default function Builder() {
   const handleFormSubmit = async () => {
     if (!validateForm()) {
       toast('Please fill required fields!', 'error');
+      setTimeout(() => {
+        const el = document.querySelector('input.error, textarea.error');
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          el.focus();
+        }
+      }, 80);
       return;
     }
     setLoading(true);
@@ -169,12 +177,19 @@ export default function Builder() {
       const result = await res.json();
       if (result.success) {
         clearDraft();
-        sessionStorage.setItem('resumeData',    JSON.stringify(result.resume));
+        const resumeData = JSON.stringify(result.resume);
+        sessionStorage.setItem('resumeData',    resumeData);
         sessionStorage.setItem('orderId',       result.orderId);
         sessionStorage.setItem('selectedType',  typeSlug || 'fresher');
         sessionStorage.setItem('selectedDesign', design   || 'classic-pro');
         if (profilePhoto) sessionStorage.setItem('profilePhoto', profilePhoto);
         else              sessionStorage.removeItem('profilePhoto');
+        saveSession({
+          resumeData,
+          orderId: result.orderId,
+          profilePhoto,
+          selectedDesign: design || 'classic-pro'
+        });
         router.push('/preview');
       } else {
         toast('Error: ' + (result.error || 'Something went wrong'), 'error');
@@ -252,11 +267,19 @@ export default function Builder() {
       const result = await res.json();
       if (result.success) {
         clearDraft();
-        sessionStorage.setItem('resumeData',    JSON.stringify(result.resume));
+        const resumeData = JSON.stringify(result.resume);
+        sessionStorage.setItem('resumeData',    resumeData);
         sessionStorage.setItem('orderId',       result.orderId);
         sessionStorage.setItem('selectedType',  typeSlug  || 'fresher');
         sessionStorage.setItem('selectedDesign', design   || 'classic-pro');
-        sessionStorage.removeItem('profilePhoto');
+        if (profilePhoto) sessionStorage.setItem('profilePhoto', profilePhoto);
+        else              sessionStorage.removeItem('profilePhoto');
+        saveSession({
+          resumeData,
+          orderId: result.orderId,
+          profilePhoto,
+          selectedDesign: design || 'classic-pro'
+        });
         router.push('/preview');
       } else {
         toast('Error: ' + (result.error || 'Something went wrong'), 'error');
@@ -270,7 +293,7 @@ export default function Builder() {
   };
 
   const fileIcon  = () => {
-    if (!uploadedFile) return <Upload size={48} color="#6B6B8D" />;
+    if (!uploadedFile) return <Upload size={48} color="#8080A0" />;
     const n = uploadedFile.name.toLowerCase();
     if (n.endsWith('.pdf'))                         return <FileText size={48} color="#00E676" />;
     if (n.endsWith('.docx') || n.endsWith('.doc'))  return <FileText size={48} color="#448AFF" />;
@@ -282,7 +305,7 @@ export default function Builder() {
       <div className="loading-overlay">
         <div className="spinner"></div>
         <p className="loading-text">{loadingText}</p>
-        <p style={{ color: '#6B6B8D', fontSize: 12, marginTop: 8 }}>
+        <p style={{ color: '#8080A0', fontSize: 12, marginTop: 8 }}>
           Do not close the page — processing is in progress
         </p>
       </div>
@@ -333,9 +356,10 @@ export default function Builder() {
       {typeSlug && (
         <div style={{ textAlign: 'center', marginBottom: 16 }}>
           <button
+            type="button"
             onClick={() => router.push(`/select-design?type=${typeSlug}`)}
             style={{
-              background: 'transparent', border: 'none', color: '#6B6B8D',
+              background: 'transparent', border: 'none', color: '#8080A0',
               fontSize: 12, cursor: 'pointer', fontFamily: 'Poppins, sans-serif'
             }}
           >
@@ -347,6 +371,7 @@ export default function Builder() {
       {/* Tab Selector */}
       <div className="tab-selector">
         <button
+          type="button"
           className={`tab-btn ${tab === 'form' ? 'active' : ''}`}
           onClick={() => setTab('form')}
           aria-pressed={tab === 'form'}
@@ -355,6 +380,7 @@ export default function Builder() {
           Fill Details
         </button>
         <button
+          type="button"
           className={`tab-btn ${tab === 'upload' ? 'active' : ''}`}
           onClick={() => setTab('upload')}
           aria-pressed={tab === 'upload'}
@@ -388,12 +414,13 @@ export default function Builder() {
               >
                 {profilePhoto
                   ? <img src={profilePhoto} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                  : <User size={32} color="#6B6B8D" />
+                  : <User size={32} color="#8080A0" />
                 }
               </div>
               <div>
                 <p style={{ color: '#B0B0D0', fontSize: 13, marginBottom: 6 }}>Profile Photo (optional)</p>
                 <button
+                  type="button"
                   onClick={() => photoRef.current?.click()}
                   style={{
                     background: 'transparent', border: '1px solid #FFD700',
@@ -405,6 +432,8 @@ export default function Builder() {
                 </button>
                 {profilePhoto && (
                   <button
+                    type="button"
+                    aria-label="Remove profile photo"
                     onClick={() => { setProfilePhoto(null); toast('Photo removed', 'info'); }}
                     style={{
                       background: 'transparent', border: '1px solid #FF4444',
@@ -413,7 +442,7 @@ export default function Builder() {
                     }}
                   >Remove</button>
                 )}
-                <p style={{ color: '#6B6B8D', fontSize: 11, marginTop: 4 }}>JPG / PNG • max 3 MB</p>
+                <p style={{ color: '#8080A0', fontSize: 11, marginTop: 4 }}>JPG / PNG • max 3 MB</p>
               </div>
               <input type="file" ref={photoRef} accept={ACCEPTED_PHOTO_TYPES}
                 onChange={handlePhotoChange} style={{ display: 'none' }} />
@@ -554,11 +583,11 @@ export default function Builder() {
                       onChange={e => updateArrayItem('experience', i, 'description', e.target.value)} />
                   </div>
                   {formData.experience.length > 1 && (
-                    <button className="remove-btn" onClick={() => removeArrayItem('experience', i)}>✕ Remove</button>
+                    <button type="button" className="remove-btn" onClick={() => removeArrayItem('experience', i)}>✕ Remove</button>
                   )}
                 </div>
               ))}
-              <button className="add-btn" onClick={() => addArrayItem('experience', emptyExp)}>+ Add More Experience</button>
+              <button type="button" className="add-btn" onClick={() => addArrayItem('experience', emptyExp)}>+ Add More Experience</button>
             </div>
           )}
 
@@ -592,11 +621,11 @@ export default function Builder() {
                       onChange={e => updateArrayItem('internships', i, 'description', e.target.value)} />
                   </div>
                   {formData.internships.length > 1 && (
-                    <button className="remove-btn" onClick={() => removeArrayItem('internships', i)}>✕ Remove</button>
+                    <button type="button" className="remove-btn" onClick={() => removeArrayItem('internships', i)}>✕ Remove</button>
                   )}
                 </div>
               ))}
-              <button className="add-btn" onClick={() => addArrayItem('internships', emptyIntern)}>+ Add More Internships</button>
+              <button type="button" className="add-btn" onClick={() => addArrayItem('internships', emptyIntern)}>+ Add More Internships</button>
             </div>
           )}
 
@@ -626,7 +655,7 @@ export default function Builder() {
                       {i === 0 ? '🏫 School (10th / 12th)' : i === 1 ? '🎓 College / University' : '🎓 Masters / PhD'}
                     </span>
                     {i >= 2 && (
-                      <button className="remove-btn" onClick={() => removeArrayItem('education', i)}>✕ Remove</button>
+                      <button type="button" className="remove-btn" onClick={() => removeArrayItem('education', i)}>✕ Remove</button>
                     )}
                   </div>
                   <div className="form-row">
@@ -659,7 +688,7 @@ export default function Builder() {
                   </div>
                 </div>
               ))}
-              <button className="add-btn" onClick={() => addArrayItem('education', emptyEdu)}>+ Add More (Masters / PhD)</button>
+              <button type="button" className="add-btn" onClick={() => addArrayItem('education', emptyEdu)}>+ Add More (Masters / PhD)</button>
             </div>
           )}
 
@@ -700,11 +729,11 @@ export default function Builder() {
                       value={proj.tech_used} onChange={e => updateArrayItem('projects', i, 'tech_used', e.target.value)} />
                   </div>
                   {formData.projects.length > 1 && (
-                    <button className="remove-btn" onClick={() => removeArrayItem('projects', i)}>✕ Remove</button>
+                    <button type="button" className="remove-btn" onClick={() => removeArrayItem('projects', i)}>✕ Remove</button>
                   )}
                 </div>
               ))}
-              <button className="add-btn" onClick={() => addArrayItem('projects', emptyProject)}>+ Add More Projects</button>
+              <button type="button" className="add-btn" onClick={() => addArrayItem('projects', emptyProject)}>+ Add More Projects</button>
             </div>
           )}
 
@@ -724,12 +753,13 @@ export default function Builder() {
 
           {/* Submit */}
           <div style={{ textAlign: 'center', marginTop: 24 }}>
-            <button className="btn-primary" onClick={handleFormSubmit}
+            <button type="button" className="btn-primary" onClick={handleFormSubmit}
+              aria-label="Generate resume preview"
               style={{ width: '100%', justifyContent: 'center', padding: '16px' }}>
               <Bot size={18} style={{ marginRight: 8 }} />
               Generate Free Preview →
             </button>
-            <p style={{ color: '#6B6B8D', fontSize: 12, marginTop: 8 }}>
+            <p style={{ color: '#8080A0', fontSize: 12, marginTop: 8 }}>
               Preview is free — Pay only to download
             </p>
           </div>
@@ -777,10 +807,10 @@ export default function Builder() {
               </>
             ) : (
               <>
-                <div className="icon"><Upload size={48} color="#6B6B8D" /></div>
+                <div className="icon"><Upload size={48} color="#8080A0" /></div>
                 <h3>Upload Your Old Resume</h3>
                 <p>Click here or drag & drop</p>
-                <p style={{ color: '#6B6B8D', fontSize: 12, marginTop: 4 }}>
+                <p style={{ color: '#8080A0', fontSize: 12, marginTop: 4 }}>
                   PDF • Word (.docx) • Image (JPG / PNG) • Max 10 MB
                 </p>
               </>
@@ -809,20 +839,20 @@ export default function Builder() {
                 }}>
                   {profilePhoto
                     ? <img src={profilePhoto} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                    : <User size={24} color="#6B6B8D" />}
+                    : <User size={24} color="#8080A0" />}
                 </div>
                 <div>
-                  <button onClick={() => photoRef.current?.click()} style={{
+                  <button type="button" onClick={() => photoRef.current?.click()} style={{
                     background: 'transparent', border: '1px solid #FFD700', color: '#FFD700',
                     borderRadius: 8, padding: '6px 14px', cursor: 'pointer', fontSize: 12, fontFamily: 'Poppins, sans-serif'
                   }}>{profilePhoto ? 'Change Photo' : '+ Add Photo'}</button>
                   {profilePhoto && (
-                    <button onClick={() => { setProfilePhoto(null); toast('Photo removed', 'info'); }} style={{
+                    <button type="button" aria-label="Remove profile photo" onClick={() => { setProfilePhoto(null); toast('Photo removed', 'info'); }} style={{
                       background: 'transparent', border: '1px solid #FF4444', color: '#FF4444',
                       borderRadius: 8, padding: '6px 14px', cursor: 'pointer', fontSize: 12, marginLeft: 8, fontFamily: 'Poppins, sans-serif'
                     }}>Remove</button>
                   )}
-                  <p style={{ color: '#6B6B8D', fontSize: 11, marginTop: 4 }}>JPG / PNG • max 3 MB</p>
+                  <p style={{ color: '#8080A0', fontSize: 11, marginTop: 4 }}>JPG / PNG • max 3 MB</p>
                 </div>
               </div>
             </div>
@@ -830,6 +860,8 @@ export default function Builder() {
             {/* Analyze button */}
             {!analysis && (
               <button
+                type="button"
+                aria-label="Check ATS score"
                 onClick={handleAnalyze} disabled={!uploadedFile || analyzing}
                 style={{
                   width: '100%', padding: '14px', borderRadius: 10, border: '2px solid #FFD700',
@@ -905,7 +937,9 @@ export default function Builder() {
 
                 {/* CTA */}
                 <button
+                  type="button"
                   className="btn-primary"
+                  aria-label="Fix issues and rebuild resume"
                   onClick={handleUploadSubmit}
                   style={{ width: '100%', justifyContent: 'center', padding: '16px', fontSize: 15 }}
                 >
@@ -913,10 +947,11 @@ export default function Builder() {
                   Fix All Issues — Build Better Resume →
                 </button>
                 <button
+                  type="button"
                   onClick={() => setAnalysis(null)}
                   style={{
                     width: '100%', marginTop: 8, padding: '10px', background: 'transparent',
-                    border: '1px solid #2A2A5A', color: '#6B6B8D', borderRadius: 8,
+                    border: '1px solid #2A2A5A', color: '#8080A0', borderRadius: 8,
                     cursor: 'pointer', fontSize: 12, fontFamily: 'Poppins, sans-serif'
                   }}
                 >Re-analyze</button>
@@ -925,15 +960,16 @@ export default function Builder() {
 
             {!analysis && (
               <>
-                <div style={{ textAlign: 'center', color: '#6B6B8D', fontSize: 12, margin: '8px 0' }}>— or —</div>
+                <div style={{ textAlign: 'center', color: '#8080A0', fontSize: 12, margin: '8px 0' }}>— or —</div>
                 <button
+                  type="button"
                   className="btn-primary" onClick={handleUploadSubmit} disabled={!uploadedFile}
                   style={{ width: '100%', justifyContent: 'center', padding: '14px' }}
                 >
                   <Bot size={18} style={{ marginRight: 8 }} />
                   Upgrade My Resume with AI
                 </button>
-                <p style={{ color: '#6B6B8D', fontSize: 12, marginTop: 8, textAlign: 'center' }}>
+                <p style={{ color: '#8080A0', fontSize: 12, marginTop: 8, textAlign: 'center' }}>
                   AI reads your resume and builds a better version • Preview free
                 </p>
               </>

@@ -70,7 +70,7 @@ export default async function handler(req, res) {
 
     // Send receipt email (non-blocking — don't fail payment if email fails)
     const userEmail = rzpPayment.email;
-    const userName  = rzpPayment.contact ? String(rzpPayment.contact) : '';
+    const userName  = rzpPayment.contact ? String(rzpPayment.contact).replace(/[<>&"]/g, '') : '';
     if (userEmail) {
       sendPaymentReceipt({
         toEmail: userEmail,
@@ -82,7 +82,12 @@ export default async function handler(req, res) {
       }).catch(err => console.error('Receipt email failed:', err));
     }
 
-    const downloadToken = generateDownloadToken(razorpay_payment_id, razorpay_order_id, plan, planConfig.downloads);
+    const downloadToken = generateDownloadToken(
+      razorpay_payment_id,
+      orderId || razorpay_order_id,
+      plan,
+      planConfig.downloads
+    );
 
     const result = {
       success: true,

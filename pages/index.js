@@ -1,69 +1,10 @@
 import { useRouter } from 'next/router';
 import Head from 'next/head';
-import { useEffect, useState, useRef } from 'react';
 import Navbar from '../components/Navbar';
-
-// Typing animation hook
-function useTypingEffect(lines, active, speed = 35) {
-  const [displayed, setDisplayed] = useState('');
-  const [lineIdx, setLineIdx] = useState(0);
-  const [charIdx, setCharIdx] = useState(0);
-
-  useEffect(() => {
-    if (!active) return;
-    if (lineIdx >= lines.length) return;
-    const current = lines[lineIdx];
-    if (charIdx < current.length) {
-      const t = setTimeout(() => {
-        setDisplayed(prev => prev + current[charIdx]);
-        setCharIdx(c => c + 1);
-      }, speed);
-      return () => clearTimeout(t);
-    } else {
-      const t = setTimeout(() => {
-        setDisplayed(prev => prev + '\n');
-        setLineIdx(l => l + 1);
-        setCharIdx(0);
-      }, 300);
-      return () => clearTimeout(t);
-    }
-  }, [charIdx, lineIdx, lines, speed, active]);
-
-  return displayed;
-}
-
-const AI_OUTPUT_LINES = [
-  'Priya Sharma | priya@email.com | Bangalore',
-  '',
-  'PROFESSIONAL SUMMARY',
-  'Results-driven Software Engineer with 3+ years building scalable',
-  'web applications. Delivered 40% performance gains at TCS by',
-  'optimizing React components and Node.js microservices.',
-  '',
-  'EXPERIENCE',
-  'Software Engineer — TCS, Bangalore   2022–Present',
-  '• Architected RESTful APIs serving 2M+ daily requests',
-  '• Reduced page load time by 40% via code-splitting & lazy loading',
-  '• Led 5-member team delivering ₹2Cr project on time',
-  '',
-  'SKILLS',
-  'React • Node.js • Python • AWS • Docker • PostgreSQL',
-];
+import { RESUME_DESIGN_GROUPS } from '../config/resumeDesigns';
 
 export default function Home() {
   const router = useRouter();
-  const [aiStarted, setAiStarted] = useState(false);
-  const demoRef = useRef(null);
-  const aiText = useTypingEffect(AI_OUTPUT_LINES, aiStarted, 28);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) setAiStarted(true); },
-      { threshold: 0.1 }
-    );
-    if (demoRef.current) observer.observe(demoRef.current);
-    return () => observer.disconnect();
-  }, []);
 
   return (
     <>
@@ -78,8 +19,7 @@ export default function Home() {
             { "@type": "SoftwareApplication", "name": "ResumeJet", "url": "https://resumejet.in",
               "description": "AI-powered resume builder. Fill basic details, AI writes the entire resume.",
               "applicationCategory": "BusinessApplication", "operatingSystem": "Web",
-              "offers": { "@type": "Offer", "price": "49", "priceCurrency": "INR" },
-              "aggregateRating": { "@type": "AggregateRating", "ratingValue": "4.8", "reviewCount": "500" }
+              "offers": { "@type": "Offer", "price": "49", "priceCurrency": "INR" }
             },
             { "@type": "Organization", "name": "ResumeJet", "url": "https://resumejet.in",
               "logo": "https://resumejet.in/og-image.png" }
@@ -116,25 +56,24 @@ export default function Home() {
             <strong style={{ color: '#fff' }}> You just review and download.</strong>
           </p>
 
-          <p style={{ color: '#6B6B8D', fontSize: 14, marginBottom: 36 }}>
+          <p style={{ color: '#8080A0', fontSize: 14, marginBottom: 36 }}>
             Starting at just <strong style={{ color: '#FFD700', fontSize: 16 }}>₹49</strong> — one-time, no subscription
           </p>
 
           <div style={{ display: 'flex', gap: 16, justifyContent: 'center', flexWrap: 'wrap' }}>
             <button
+              type="button"
               className="btn-primary"
               style={{ fontSize: 17, padding: '16px 44px', borderRadius: 14 }}
+              aria-label="Let AI build my resume"
               onClick={() => router.push('/select-type')}
             >
               🤖 Let AI Build My Resume →
             </button>
             <button
-              style={{ background: 'transparent', border: '1px solid #2A2A5A', color: '#B0B0D0',
-                padding: '16px 28px', borderRadius: 14, fontSize: 15, cursor: 'pointer',
-                fontFamily: 'Poppins, sans-serif', transition: 'all 0.3s' }}
+              className="btn-ghost"
+              type="button"
               onClick={() => document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' })}
-              onMouseEnter={e => e.currentTarget.style.borderColor = '#FFD700'}
-              onMouseLeave={e => e.currentTarget.style.borderColor = '#2A2A5A'}
             >
               See How It Works
             </button>
@@ -150,7 +89,7 @@ export default function Home() {
             ].map(s => (
               <div key={s.label} style={{ textAlign: 'center' }}>
                 <div style={{ fontSize: 22, fontWeight: 800, color: '#FFD700' }}>{s.num}</div>
-                <div style={{ fontSize: 12, color: '#6B6B8D', marginTop: 3 }}>{s.label}</div>
+                <div style={{ fontSize: 12, color: '#8080A0', marginTop: 3 }}>{s.label}</div>
               </div>
             ))}
           </div>
@@ -158,96 +97,6 @@ export default function Home() {
       </section>
 
       {/* ───── AI DEMO: BEFORE / AFTER ───── */}
-      <section ref={demoRef} style={{ padding: '80px 20px', background: '#0A0A1A' }}>
-        <div className="container">
-          <div style={{ textAlign: 'center', marginBottom: 52 }}>
-            <div style={{ display: 'inline-block', background: 'rgba(255,215,0,0.08)',
-              border: '1px solid rgba(255,215,0,0.2)', borderRadius: 100,
-              padding: '5px 18px', fontSize: 12, color: '#FFD700', fontWeight: 600, marginBottom: 16 }}>
-              LIVE AI DEMO
-            </div>
-            <h2 style={{ fontSize: 32, fontWeight: 800, marginBottom: 12 }}>
-              You Give <span style={{ color: '#6B6B8D' }}>Basic Info</span> →
-              AI Writes <span style={{ color: '#00E676' }}>The Whole Resume</span>
-            </h2>
-            <p style={{ color: '#B0B0D0', fontSize: 15 }}>See exactly what AI does with your details</p>
-          </div>
-
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-            gap: 24, maxWidth: 960, margin: '0 auto', alignItems: 'stretch' }}>
-
-            {/* LEFT: User input */}
-            <div style={{ background: '#12122A', border: '1px solid #2A2A5A', borderRadius: 20, overflow: 'hidden' }}>
-              <div style={{ background: '#1A1A3E', padding: '14px 20px', display: 'flex', alignItems: 'center', gap: 10, borderBottom: '1px solid #2A2A5A' }}>
-                <div style={{ display: 'flex', gap: 6 }}>
-                  <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#FF5F57' }} />
-                  <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#FEBC2E' }} />
-                  <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#28C840' }} />
-                </div>
-                <span style={{ fontSize: 12, color: '#6B6B8D', fontWeight: 600 }}>YOU TYPE THIS (basic details)</span>
-              </div>
-              <div style={{ padding: '24px 24px', fontFamily: 'monospace', fontSize: 13, color: '#B0B0D0', lineHeight: 2 }}>
-                <div><span style={{ color: '#6B6B8D' }}>Name:</span> Priya Sharma</div>
-                <div><span style={{ color: '#6B6B8D' }}>Job:</span> Software Engineer at TCS</div>
-                <div><span style={{ color: '#6B6B8D' }}>Work:</span> 3 years, React, Node.js</div>
-                <div><span style={{ color: '#6B6B8D' }}>Did:</span> improved performance, led team</div>
-                <div><span style={{ color: '#6B6B8D' }}>Skills:</span> React, Python, AWS</div>
-                <div><span style={{ color: '#6B6B8D' }}>Study:</span> B.Tech CS, VIT 2021</div>
-                <div style={{ marginTop: 20, padding: '10px 14px', background: 'rgba(255,215,0,0.06)',
-                  borderRadius: 10, border: '1px solid rgba(255,215,0,0.15)', fontSize: 12, color: '#FFD700' }}>
-                  ↑ That&apos;s all you need to fill
-                </div>
-              </div>
-            </div>
-
-            {/* ARROW */}
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center',
-              justifyContent: 'center', gap: 12, padding: '20px 0' }}>
-              <div style={{ width: 56, height: 56, borderRadius: '50%',
-                background: 'linear-gradient(135deg, #FFD700, #FFA000)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontSize: 24, boxShadow: '0 0 30px rgba(255,215,0,0.3)' }}>
-                🤖
-              </div>
-              <div style={{ fontSize: 11, color: '#6B6B8D', textAlign: 'center', fontWeight: 600, textTransform: 'uppercase', letterSpacing: 1 }}>
-                AI processes<br />& writes
-              </div>
-              <div style={{ fontSize: 22, color: '#FFD700' }}>↓</div>
-            </div>
-
-            {/* RIGHT: AI output */}
-            <div style={{ background: '#12122A', border: '1px solid rgba(0,230,118,0.3)', borderRadius: 20, overflow: 'hidden' }}>
-              <div style={{ background: '#1A1A3E', padding: '14px 20px', display: 'flex', alignItems: 'center', gap: 10, borderBottom: '1px solid rgba(0,230,118,0.2)' }}>
-                <div style={{ display: 'flex', gap: 6 }}>
-                  <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#FF5F57' }} />
-                  <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#FEBC2E' }} />
-                  <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#28C840' }} />
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#00E676',
-                    display: 'inline-block', boxShadow: '0 0 6px #00E676', animation: 'pulse 1.5s infinite' }} />
-                  <span style={{ fontSize: 12, color: '#00E676', fontWeight: 600 }}>AI WRITES THIS (professional resume)</span>
-                </div>
-              </div>
-              <div style={{ padding: '20px 24px', fontFamily: 'monospace', fontSize: 12.5,
-                color: '#00E676', lineHeight: 1.9, whiteSpace: 'pre-wrap', minHeight: 260,
-                background: 'rgba(0,230,118,0.02)' }}>
-                {aiText}
-                <span style={{ display: 'inline-block', width: 2, height: 14, background: '#00E676',
-                  marginLeft: 1, animation: 'blink 1s infinite', verticalAlign: 'middle' }} />
-              </div>
-            </div>
-          </div>
-
-          <div style={{ textAlign: 'center', marginTop: 40 }}>
-            <button className="btn-primary" style={{ fontSize: 16, padding: '14px 40px', borderRadius: 12 }}
-              onClick={() => router.push('/select-type')}>
-              Try It — Build My Resume with AI →
-            </button>
-          </div>
-        </div>
-      </section>
-
       {/* ───── HOW IT WORKS ───── */}
       <section style={{ padding: '80px 20px', background: '#12122A' }} id="how-it-works">
         <div className="container">
@@ -300,40 +149,6 @@ export default function Home() {
       </section>
 
       {/* ───── WHAT AI DOES FOR YOU ───── */}
-      <section style={{ padding: '80px 20px' }}>
-        <div className="container">
-          <div style={{ textAlign: 'center', marginBottom: 52 }}>
-            <h2 style={{ fontSize: 32, fontWeight: 800, marginBottom: 10 }}>
-              What <span style={{ color: '#00E676' }}>AI Writes</span> For You
-            </h2>
-            <p style={{ color: '#B0B0D0', fontSize: 15 }}>You don&apos;t write a single professional sentence — AI does it all</p>
-          </div>
-
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
-            gap: 16, maxWidth: 1000, margin: '0 auto' }}>
-            {[
-              { icon: '✦', title: 'Professional Summary', desc: 'AI reads your experience and writes a powerful 3-4 line summary that grabs HR attention.' },
-              { icon: '✦', title: 'Bullet Point Achievements', desc: 'AI converts "I improved performance" → "Reduced page load time by 40%, boosting conversions 22%".' },
-              { icon: '✦', title: 'ATS Keywords', desc: 'AI scans the job description and weaves exact keywords throughout your resume automatically.' },
-              { icon: '✦', title: 'Skills Section', desc: 'AI categorises Technical vs Soft skills and lists them in the exact format ATS systems prefer.' },
-              { icon: '✦', title: 'Action Verbs', desc: 'AI replaces weak phrases with power verbs — Led, Architected, Delivered, Increased, Optimized.' },
-              { icon: '✦', title: 'Perfect Grammar', desc: 'Zero spelling or grammar errors. AI proofreads everything automatically before you see it.' },
-            ].map(f => (
-              <div key={f.title} style={{
-                background: '#1A1A3E', border: '1px solid #2A2A5A',
-                borderRadius: 16, padding: '22px 20px', transition: 'all 0.3s'
-              }}
-                onMouseEnter={e => { e.currentTarget.style.borderColor = '#00E676'; e.currentTarget.style.background = '#1a2a1a'; }}
-                onMouseLeave={e => { e.currentTarget.style.borderColor = '#2A2A5A'; e.currentTarget.style.background = '#1A1A3E'; }}
-              >
-                <div style={{ fontSize: 18, color: '#00E676', marginBottom: 10, fontWeight: 700 }}>{f.icon} {f.title}</div>
-                <p style={{ fontSize: 13, color: '#B0B0D0', lineHeight: 1.75 }}>{f.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* ───── RESUME TYPES ───── */}
       <section style={{ padding: '80px 20px', background: '#12122A' }} id="types">
         <div className="container">
@@ -389,42 +204,6 @@ export default function Home() {
       </section>
 
       {/* ───── FEATURES ───── */}
-      <section style={{ padding: '80px 20px' }} id="features">
-        <div className="container">
-          <div style={{ textAlign: 'center', marginBottom: 48 }}>
-            <h2 style={{ fontSize: 32, fontWeight: 800, marginBottom: 10 }}>
-              Why <span style={{ color: '#FFD700' }}>ResumeJet AI?</span>
-            </h2>
-            <p style={{ color: '#B0B0D0', fontSize: 15 }}>Built specifically for the Indian job market</p>
-          </div>
-
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
-            gap: 20, maxWidth: 1000, margin: '0 auto' }}>
-            {[
-              { icon: '🤖', title: 'AI Writes Everything', desc: 'You fill basic info. AI generates your entire resume — summary, bullets, skills, formatting. No writing needed.', highlight: true },
-              { icon: '🎯', title: '95%+ ATS Score', desc: 'AI optimises every section for Applicant Tracking Systems. Your resume gets read by real HR, not rejected by bots.' },
-              { icon: '🎨', title: '16 Pro Templates', desc: '4 styles × 4 colours. Classic, Modern, Creative, Minimal. AI fills any template instantly.' },
-              { icon: '⚡', title: 'Ready in 2 Minutes', desc: 'Fill 10 basic fields, AI generates a full resume in under 60 seconds. Download in 2 minutes total.' },
-              { icon: '💰', title: 'Only ₹49', desc: 'Professional resume writers charge ₹2000–5000. Get full AI-written resume for just ₹49.' },
-              { icon: '🔒', title: 'Private & Secure', desc: 'Your data is used only for generation and deleted immediately after. No spam, no storage, no sharing.' },
-            ].map(f => (
-              <div key={f.title} style={{
-                background: f.highlight ? 'linear-gradient(135deg, #0d1f0d, #1a3a1a)' : '#1A1A3E',
-                border: f.highlight ? '1px solid rgba(0,230,118,0.4)' : '1px solid #2A2A5A',
-                borderRadius: 16, padding: '24px', transition: 'all 0.3s'
-              }}
-                onMouseEnter={e => { e.currentTarget.style.borderColor = f.highlight ? '#00E676' : '#FFD700'; }}
-                onMouseLeave={e => { e.currentTarget.style.borderColor = f.highlight ? 'rgba(0,230,118,0.4)' : '#2A2A5A'; }}
-              >
-                <div style={{ fontSize: 30, marginBottom: 12 }}>{f.icon}</div>
-                <h3 style={{ fontSize: 16, fontWeight: 700, color: f.highlight ? '#00E676' : '#FFD700', marginBottom: 8 }}>{f.title}</h3>
-                <p style={{ fontSize: 13, color: '#B0B0D0', lineHeight: 1.7 }}>{f.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* ───── PRICING ───── */}
       <section style={{ padding: '80px 20px', background: '#12122A' }} id="pricing">
         <div className="container">
@@ -440,7 +219,7 @@ export default function Home() {
               borderRadius: 20, padding: '36px 32px', flex: '1 1 260px', maxWidth: 300 }}>
               <div style={{ fontSize: 13, color: '#B0B0D0', marginBottom: 8, fontWeight: 600 }}>BASIC</div>
               <div style={{ fontSize: 42, fontWeight: 900, color: '#FFD700', marginBottom: 4 }}>₹49</div>
-              <div style={{ fontSize: 13, color: '#6B6B8D', marginBottom: 24 }}>one-time payment</div>
+              <div style={{ fontSize: 13, color: '#8080A0', marginBottom: 24 }}>one-time payment</div>
               <ul style={{ listStyle: 'none', padding: 0, marginBottom: 28 }}>
                 {['AI Writes Full Resume', '2 PDF Downloads', 'All Resume Types', 'All 16 Templates', 'ATS Optimized'].map(f => (
                   <li key={f} style={{ fontSize: 14, color: '#B0B0D0', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -448,7 +227,7 @@ export default function Home() {
                   </li>
                 ))}
               </ul>
-              <button className="btn-secondary" style={{ width: '100%', justifyContent: 'center' }}
+              <button type="button" className="btn-secondary" style={{ width: '100%', justifyContent: 'center' }}
                 onClick={() => router.push('/select-type')}>Get Started</button>
             </div>
 
@@ -461,7 +240,7 @@ export default function Home() {
                 padding: '4px 16px', borderRadius: 100, whiteSpace: 'nowrap' }}>BEST VALUE</div>
               <div style={{ fontSize: 13, color: '#FFD700', marginBottom: 8, fontWeight: 600 }}>PRO</div>
               <div style={{ fontSize: 42, fontWeight: 900, color: '#FFD700', marginBottom: 4 }}>₹79</div>
-              <div style={{ fontSize: 13, color: '#6B6B8D', marginBottom: 24 }}>one-time payment</div>
+              <div style={{ fontSize: 13, color: '#8080A0', marginBottom: 24 }}>one-time payment</div>
               <ul style={{ listStyle: 'none', padding: 0, marginBottom: 28 }}>
                 {['AI Writes Full Resume', '4 PDF Downloads', 'All Resume Types', 'All 16 Templates', 'ATS Optimized', 'Priority AI Processing'].map(f => (
                   <li key={f} style={{ fontSize: 14, color: '#B0B0D0', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -469,7 +248,8 @@ export default function Home() {
                   </li>
                 ))}
               </ul>
-              <button className="btn-primary" style={{ width: '100%', justifyContent: 'center' }}
+              <button type="button" className="btn-primary" style={{ width: '100%', justifyContent: 'center' }}
+                aria-label="Get Pro plan"
                 onClick={() => router.push('/select-type')}>Get Pro →</button>
             </div>
           </div>
@@ -498,7 +278,7 @@ export default function Home() {
                 <p style={{ fontSize: 14, color: '#B0B0D0', lineHeight: 1.8, marginBottom: 20 }}>{t.text}</p>
                 <div>
                   <div style={{ fontWeight: 700, fontSize: 14, color: '#fff' }}>{t.name}</div>
-                  <div style={{ fontSize: 12, color: '#6B6B8D', marginTop: 2 }}>{t.role}</div>
+                  <div style={{ fontSize: 12, color: '#8080A0', marginTop: 2 }}>{t.role}</div>
                 </div>
               </div>
             ))}
@@ -518,15 +298,110 @@ export default function Home() {
             10,000+ professionals already let AI write their resume.
             Takes 2 minutes. Costs ₹49. Gets you interviews.
           </p>
-          <p style={{ color: '#6B6B8D', fontSize: 13, marginBottom: 36 }}>
+          <p style={{ color: '#8080A0', fontSize: 13, marginBottom: 36 }}>
             No writing skills needed · No experience needed · AI handles everything
           </p>
-          <button className="btn-primary"
+          <button type="button" className="btn-primary"
             style={{ fontSize: 18, padding: '18px 52px', borderRadius: 14 }}
+            aria-label="Let AI build my resume"
             onClick={() => router.push('/select-type')}>
             🤖 Let AI Build My Resume →
           </button>
-          <p style={{ color: '#6B6B8D', fontSize: 13, marginTop: 16 }}>₹49 only · 2 minute build · No signup needed</p>
+          <p style={{ color: '#8080A0', fontSize: 13, marginTop: 16 }}>₹49 only · 2 minute build · No signup needed</p>
+        </div>
+      </section>
+
+      {/* ───── TEMPLATE GALLERY ───── */}
+      <section style={{ padding: '80px 20px', background: '#0A0A1A' }} id="templates">
+        <div className="container" style={{ maxWidth: 1100 }}>
+
+          {/* Heading */}
+          <div style={{ textAlign: 'center', marginBottom: 52 }}>
+            <div style={{ display: 'inline-block', background: '#FFD70022', border: '1px solid #FFD70044', borderRadius: 20, padding: '4px 14px', fontSize: 12, color: '#FFD700', marginBottom: 14 }}>
+              20 TEMPLATES
+            </div>
+            <h2 style={{ fontSize: 32, fontWeight: 800, marginBottom: 10 }}>
+              Choose Your <span style={{ color: '#FFD700' }}>Perfect Design</span>
+            </h2>
+            <p style={{ color: '#B0B0D0', fontSize: 15 }}>
+              5 layout styles · 4 color variants each · All ATS-optimized
+            </p>
+          </div>
+
+          {/* Groups */}
+          {RESUME_DESIGN_GROUPS.map(group => (
+            <div key={group.style} style={{ marginBottom: 52 }}>
+
+              {/* Group divider header */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
+                <h3 style={{ fontSize: 16, fontWeight: 700, color: '#fff', whiteSpace: 'nowrap' }}>{group.label}</h3>
+                <span style={{ fontSize: 12, color: '#B0B0D0', whiteSpace: 'nowrap' }}>{group.description}</span>
+                <div style={{ flex: 1, height: 1, background: '#2A2A5A' }} />
+              </div>
+
+              {/* 4 variant cards */}
+              <div className="template-grid">
+                {group.variants.map(variant => (
+                  <div
+                    key={variant.id}
+                    onClick={() => router.push('/select-type')}
+                    style={{
+                      background: '#1A1A3E',
+                      border: '1px solid #2A2A5A',
+                      borderRadius: 14,
+                      overflow: 'hidden',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s',
+                    }}
+                    onMouseEnter={e => { e.currentTarget.style.border = '1px solid #FFD70088'; e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.boxShadow = '0 8px 30px rgba(255,215,0,0.1)'; }}
+                    onMouseLeave={e => { e.currentTarget.style.border = '1px solid #2A2A5A'; e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = 'none'; }}
+                  >
+                    {/* Real resume preview via iframe */}
+                    <div style={{ height: 220, overflow: 'hidden', position: 'relative', background: variant.colors.bg || '#fff' }}>
+                      <iframe
+                        src={`/api/template-preview?design=${variant.id}`}
+                        style={{
+                          width: '794px',
+                          height: '1123px',
+                          transform: 'scale(0.28)',
+                          transformOrigin: 'top left',
+                          border: 'none',
+                          pointerEvents: 'none',
+                        }}
+                        loading="lazy"
+                        title={variant.name}
+                      />
+                    </div>
+
+                    {/* Name + tag */}
+                    <div style={{ padding: '10px 14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#1A1A3E' }}>
+                      <span style={{ fontWeight: 700, fontSize: 12, color: '#fff' }}>{variant.name}</span>
+                      <span style={{
+                        fontSize: 9, fontWeight: 600, padding: '2px 8px', borderRadius: 10,
+                        background: variant.tagColor + '22', color: variant.tagColor,
+                        border: `1px solid ${variant.tagColor}44`,
+                      }}>{variant.tag}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+            </div>
+          ))}
+
+          {/* CTA */}
+          <div style={{ textAlign: 'center', marginTop: 8 }}>
+            <button
+              type="button"
+              className="btn-primary"
+              style={{ fontSize: 16, padding: '14px 44px', borderRadius: 12 }}
+              aria-label="Build my resume"
+              onClick={() => router.push('/select-type')}
+            >
+              Build My Resume →
+            </button>
+          </div>
+
         </div>
       </section>
 
@@ -552,6 +427,17 @@ export default function Home() {
         @keyframes blink {
           0%, 100% { opacity: 1; }
           50% { opacity: 0; }
+        }
+        .template-grid {
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
+          gap: 16px;
+        }
+        @media (max-width: 900px) {
+          .template-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 480px) {
+          .template-grid { grid-template-columns: repeat(1, 1fr); }
         }
       `}</style>
     </>

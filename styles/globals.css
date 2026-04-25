@@ -11,7 +11,7 @@
   --blue: #448AFF;
   --text-primary: #FFFFFF;
   --text-secondary: #B0B0D0;
-  --text-muted: #6B6B8D;
+  --text-muted: #8080A0;
   --border: #2A2A5A;
 }
 
@@ -58,6 +58,11 @@ a { text-decoration: none; color: inherit; }
   box-shadow: 0 8px 30px rgba(255, 215, 0, 0.3);
 }
 
+.btn-primary:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
 .btn-primary:disabled {
   opacity: 0.5;
   cursor: not-allowed;
@@ -80,6 +85,33 @@ a { text-decoration: none; color: inherit; }
 .btn-secondary:hover {
   background: var(--accent);
   color: #000;
+}
+
+.btn-secondary:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.btn-ghost {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  padding: 16px 28px;
+  border-radius: 14px;
+  font-size: 15px;
+  cursor: pointer;
+  font-family: 'Poppins', sans-serif;
+  transition: border-color 0.3s, color 0.3s;
+}
+
+.btn-ghost:hover {
+  border-color: var(--accent);
+  color: var(--text-primary);
+}
+
+.btn-ghost:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
 }
 
 /* ===== NAVBAR ===== */
@@ -141,6 +173,12 @@ a { text-decoration: none; color: inherit; }
   background: rgba(255, 255, 255, 0.06);
 }
 
+.nav-link:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  color: #fff;
+}
+
 .nav-cta {
   margin-left: 8px;
   font-size: 14px !important;
@@ -162,6 +200,11 @@ a { text-decoration: none; color: inherit; }
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+}
+
+.nav-hamburger:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
 
 @media (max-width: 700px) {
@@ -510,6 +553,11 @@ a { text-decoration: none; color: inherit; }
   border-color: var(--accent);
 }
 
+.tab-btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
 .form-card {
   background: var(--bg-card);
   border: 1px solid var(--border);
@@ -598,6 +646,11 @@ a { text-decoration: none; color: inherit; }
   background: rgba(255, 215, 0, 0.1);
 }
 
+.add-btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
 .remove-btn {
   background: transparent;
   border: 1px solid var(--red);
@@ -608,6 +661,11 @@ a { text-decoration: none; color: inherit; }
   font-size: 12px;
   font-family: 'Poppins', sans-serif;
   margin-top: 8px;
+}
+
+.remove-btn:focus-visible {
+  outline: 2px solid var(--red);
+  outline-offset: 3px;
 }
 
 /* ===== UPLOAD AREA ===== */
@@ -625,6 +683,12 @@ a { text-decoration: none; color: inherit; }
 .upload-area:hover {
   border-color: var(--accent);
   background: rgba(255, 215, 0, 0.03);
+}
+
+.upload-area:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-color: var(--accent);
 }
 
 .upload-area .icon {
@@ -856,4 +920,65 @@ a { text-decoration: none; color: inherit; }
   .form-card { padding: 20px; }
   .resume-content { padding: 24px; }
   .payment-bar { flex-direction: column; gap: 12px; }
+}
+
+/* ===== DESIGN GRID ===== */
+.design-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+@media (max-width: 900px) {
+  .design-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 480px) {
+  .design-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+}
+
+/* ===== ATS SCORE BADGE ===== */
+.ats-score-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px 20px;
+  margin-bottom: 16px;
+  max-width: 700px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.ats-score-pill {
+  font-size: 20px;
+  font-weight: 800;
+  min-width: 56px;
+  text-align: center;
+}
+
+/* ===== INLINE EDIT ===== */
+.resume-field-editable {
+  cursor: text;
+  border-radius: 4px;
+  transition: background 0.15s;
+  outline: none;
+}
+
+.resume-field-editable:hover {
+  background: rgba(255, 215, 0, 0.06);
+}
+
+.resume-field-editable:focus {
+  background: rgba(255, 215, 0, 0.1);
+  box-shadow: 0 0 0 2px rgba(255, 215, 0, 0.3);
+}
+
+/* ===== GLOBAL FOCUS RING CATCHALL ===== */
+a:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 3px;
 }
