@@ -316,8 +316,7 @@ export default function Builder() {
     <div className="builder-page" style={{ paddingTop: 80 }}>
       <Head>
         <title>Build Your Resume — ResumeJet</title>
-        <meta name="description" content="Fill in your details and let Claude AI write your professional resume. ATS-optimized content generated automatically. Download as PDF in minutes." />
-        <link rel="canonical" href="https://resumejet.in/builder" />
+        <meta name="robots" content="noindex, nofollow" />
       </Head>
       <Navbar showCTA={false} />
 

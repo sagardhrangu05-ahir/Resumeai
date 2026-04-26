@@ -11,7 +11,18 @@ export default function Home() {
       <Head>
         <title>ResumeJet — AI Resume Builder India | ₹49</title>
         <meta name="description" content="Just fill your basic details — AI writes your entire resume. Professional, ATS-optimized PDF in 2 minutes. Starting at ₹49." />
-        <link rel="canonical" href="https://resumejet.in" />
+        <link rel="canonical" href="https://resumejet.in/" />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://resumejet.in/" />
+        <meta property="og:title" content="ResumeJet — AI Resume Builder India | ₹49" />
+        <meta property="og:description" content="Just fill your basic details — AI writes your entire resume. Professional, ATS-optimized PDF in 2 minutes. Starting at ₹49." />
+        <meta property="og:image" content="https://resumejet.in/og-image.png" />
+        <meta property="og:locale" content="en_IN" />
+        <meta property="og:site_name" content="ResumeJet" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="ResumeJet — AI Resume Builder India | ₹49" />
+        <meta name="twitter:description" content="Just fill your basic details — AI writes your entire resume. Professional, ATS-optimized PDF in 2 minutes. Starting at ₹49." />
+        <meta name="twitter:image" content="https://resumejet.in/og-image.png" />
         <script src="https://checkout.razorpay.com/v1/checkout.js" async></script>
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
           "@context": "https://schema.org",

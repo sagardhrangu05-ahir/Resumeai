@@ -19,9 +19,8 @@ export default function SelectDesign() {
   return (
     <>
       <Head>
-        <title>Choose Resume Design — ResumeJet | 16 Templates</title>
-        <meta name="description" content="Pick from 16 professional resume templates — Classic, Modern, Creative, Minimal. 4 color variants each. All ATS-optimized for the Indian job market." />
-        <link rel="canonical" href="https://resumejet.in/select-design" />
+        <title>Choose Resume Design — ResumeJet</title>
+        <meta name="robots" content="noindex, nofollow" />
       </Head>
       <Navbar showCTA={false} />
 

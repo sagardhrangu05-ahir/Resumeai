@@ -8,8 +8,28 @@ export default function WhatAiWrites() {
   return (
     <>
       <Head>
-        <title>What AI Writes For You — ResumeJet</title>
-        <meta name="description" content="AI writes your professional summary, bullet points, ATS keywords, skills section and more — automatically." />
+        <title>What AI Writes For You — Resume Summary, Bullets & Keywords | ResumeJet</title>
+        <meta name="description" content="See exactly what AI generates for your resume: professional summary, achievement bullet points, ATS keywords, skills section, action verbs, and perfect grammar — automatically." />
+        <link rel="canonical" href="https://resumejet.in/what-ai-writes" />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://resumejet.in/what-ai-writes" />
+        <meta property="og:title" content="What AI Writes For You — Resume Summary, Bullets & Keywords | ResumeJet" />
+        <meta property="og:description" content="AI generates your professional summary, achievement bullets, ATS keywords, and more. You fill basic info — AI does the writing." />
+        <meta property="og:image" content="https://resumejet.in/og-image.png" />
+        <meta property="og:locale" content="en_IN" />
+        <meta property="og:site_name" content="ResumeJet" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="What AI Writes For Your Resume | ResumeJet" />
+        <meta name="twitter:description" content="AI writes your summary, bullets, ATS keywords, and skills — automatically from your basic details." />
+        <meta name="twitter:image" content="https://resumejet.in/og-image.png" />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "WebPage",
+          "name": "What AI Writes For You — Resume Summary, Bullets & Keywords",
+          "url": "https://resumejet.in/what-ai-writes",
+          "description": "See exactly what AI generates for your resume: professional summary, achievement bullet points, ATS keywords, and more.",
+          "isPartOf": { "@type": "WebSite", "name": "ResumeJet", "url": "https://resumejet.in" }
+        })}} />
       </Head>
 
       <Navbar showCTA />

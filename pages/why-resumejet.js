@@ -8,8 +8,28 @@ export default function WhyResumeJet() {
   return (
     <>
       <Head>
-        <title>Why ResumeJet? — AI Resume Builder India</title>
-        <meta name="description" content="95%+ ATS score, 16 pro templates, AI writes everything — built specifically for the Indian job market at just ₹49." />
+        <title>Why ResumeJet? AI Resume Builder with 95%+ ATS Score | India ₹49</title>
+        <meta name="description" content="95%+ ATS score, 16 professional templates, AI writes your entire resume — built for the Indian job market. One-time payment of ₹49, no subscription." />
+        <link rel="canonical" href="https://resumejet.in/why-resumejet" />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://resumejet.in/why-resumejet" />
+        <meta property="og:title" content="Why ResumeJet? AI Resume Builder with 95%+ ATS Score | India ₹49" />
+        <meta property="og:description" content="95%+ ATS score, 16 professional templates, AI writes your entire resume — built for the Indian job market. One-time payment of ₹49." />
+        <meta property="og:image" content="https://resumejet.in/og-image.png" />
+        <meta property="og:locale" content="en_IN" />
+        <meta property="og:site_name" content="ResumeJet" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Why ResumeJet? AI Resume Builder India | ₹49" />
+        <meta name="twitter:description" content="95%+ ATS score, AI writes everything, 16 templates — built for India. ₹49 one-time." />
+        <meta name="twitter:image" content="https://resumejet.in/og-image.png" />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "WebPage",
+          "name": "Why ResumeJet? AI Resume Builder with 95%+ ATS Score",
+          "url": "https://resumejet.in/why-resumejet",
+          "description": "95%+ ATS score, 16 professional templates, AI writes your entire resume — built for the Indian job market at ₹49.",
+          "isPartOf": { "@type": "WebSite", "name": "ResumeJet", "url": "https://resumejet.in" }
+        })}} />
       </Head>
 
       <Navbar showCTA />

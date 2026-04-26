@@ -108,6 +108,21 @@ In-memory per-IP rate limiter. `/api/generate-resume`: 10 req/min. `/api/upload-
 2. Add system prompt to `TYPE_PROMPTS` in `lib/claude.js`
 3. Add slug to `VALID_RESUME_TYPES` in both `api/generate-resume.js` and `api/upload-resume.js`
 
+### SEO & Head Tags
+`pages/_document.js` is the single place for global `<head>` content: robots meta, geo-targeting (IN-GJ/Surat), hreflang (`en-IN`, `hi-IN`, `gu-IN`), favicon links, and Razorpay DNS prefetch. Per-page `<title>`, canonical, and Open Graph tags live in each page's `<Head>` via `next/head`.
+
+**Page indexability split:**
+- **Indexed** (have canonical + OG tags + appear in `sitemap.xml`): `/`, `/why-resumejet`, `/what-ai-writes`, `/ai-demo`, `/contact`, and the legal pages.
+- **Not indexed** (`noindex, nofollow`, excluded from sitemap): the app funnel — `/select-type`, `/select-design`, `/builder`, `/preview`. Do not add canonical or OG tags to these pages.
+
+All indexed pages reference `https://resumejet.in/og-image.png` for social share previews — this file needs to exist at `public/og-image.png` (1200×630 px). It is not yet created.
+
+### Stale / Unused Dependencies
+`pg` and `multer` appear in `package.json` but are not used. The actual persistence is the file-backed JSON store (`lib/store.js`); the upload API uses a hand-rolled multipart parser. Do not add database logic expecting `pg` to be wired up.
+
+### Repository Layout
+The `/root/Resumeai/` directory is an older copy of the project — ignore it. The active codebase is at `/root/`.
+
 ### Adding a New Template
 1. Create `templates/<name>.js` exporting `generateHTML(resume, profilePhoto, theme)` and a `THEMES` map — import helpers from `lib/resume-helpers.js`
 2. Add the template and its 4 color-variant IDs to `config/resumeDesigns.js`

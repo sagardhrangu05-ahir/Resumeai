@@ -246,7 +246,10 @@ export default function Preview() {
     const designObj = RESUME_DESIGNS.find(d => d.id === downloadDesign);
     return (
       <>
-        <Head><title>Download Resume — ResumeJet</title></Head>
+        <Head>
+          <title>Download Resume — ResumeJet</title>
+          <meta name="robots" content="noindex, nofollow" />
+        </Head>
         <Navbar showCTA={false} />
         <div className="success-page">
           <div>
@@ -328,7 +331,10 @@ export default function Preview() {
   if (wasPaid && creditsLeft === 0) {
     return (
       <>
-        <Head><title>Downloads Used — ResumeJet</title></Head>
+        <Head>
+          <title>Downloads Used — ResumeJet</title>
+          <meta name="robots" content="noindex, nofollow" />
+        </Head>
         <Navbar showCTA={false} />
         <div className="success-page">
           <div>
@@ -361,8 +367,7 @@ export default function Preview() {
     <>
       <Head>
         <title>Resume Preview — ResumeJet</title>
-        <meta name="description" content="Preview your AI-generated resume before downloading. Pay once to get your professional PDF without watermarks." />
-        <link rel="canonical" href="https://resumejet.in/preview" />
+        <meta name="robots" content="noindex, nofollow" />
       </Head>
       <Script src="https://checkout.razorpay.com/v1/checkout.js" strategy="afterInteractive" />
 

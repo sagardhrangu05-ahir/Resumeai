@@ -67,8 +67,28 @@ export default function AiDemo() {
   return (
     <>
       <Head>
-        <title>Live AI Demo — ResumeJet</title>
-        <meta name="description" content="See exactly how AI turns your basic details into a professional resume in seconds." />
+        <title>Live AI Resume Demo — Watch AI Write a Resume in Seconds | ResumeJet</title>
+        <meta name="description" content="Watch a live demo of ResumeJet AI building a professional resume in real time. See how AI turns basic job details into polished bullet points, summaries, and ATS keywords." />
+        <link rel="canonical" href="https://resumejet.in/ai-demo" />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://resumejet.in/ai-demo" />
+        <meta property="og:title" content="Live AI Resume Demo — Watch AI Write a Resume in Seconds | ResumeJet" />
+        <meta property="og:description" content="Watch a live demo of ResumeJet AI building a professional resume in real time — from basic details to polished output." />
+        <meta property="og:image" content="https://resumejet.in/og-image.png" />
+        <meta property="og:locale" content="en_IN" />
+        <meta property="og:site_name" content="ResumeJet" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Live AI Resume Demo | ResumeJet" />
+        <meta name="twitter:description" content="Watch AI turn basic job details into a polished resume in seconds. Live demo — no signup needed." />
+        <meta name="twitter:image" content="https://resumejet.in/og-image.png" />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "WebPage",
+          "name": "Live AI Resume Demo — Watch AI Write a Resume in Seconds",
+          "url": "https://resumejet.in/ai-demo",
+          "description": "Live demo showing how ResumeJet AI turns basic details into a professional resume in real time.",
+          "isPartOf": { "@type": "WebSite", "name": "ResumeJet", "url": "https://resumejet.in" }
+        })}} />
       </Head>
 
       <Navbar showCTA />
